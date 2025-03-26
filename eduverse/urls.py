@@ -8,5 +8,6 @@ def home(request):
 urlpatterns = [
     path('', home, name='home'), 
     path('students/', include('students.urls')),
+    path('faculty/',include('faculty.urls')),
     path('admin/', admin.site.urls),
 ]
