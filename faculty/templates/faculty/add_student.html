@@ -1,0 +1,36 @@
+{% extends 'base.html' %}
+
+{% block title %}Add Student{% endblock %}
+
+{% block content %}
+    <h1 class="mb-3">Add a New Student</h1>
+    {% if messages %}
+        {% for message in messages %}
+            <div class="alert alert-{{ message.tags }}">{{ message }}</div>
+        {% endfor %}
+    {% endif %}
+    <form method="post">
+        {% csrf_token %}
+        <div class="mb-3">
+            <label for="name" class="form-label">Name</label>
+            <input type="text" class="form-control" id="name" name="name" required>
+        </div>
+        <div class="mb-3">
+            <label for="roll_number" class="form-label">Roll Number</label>
+            <input type="text" class="form-control" id="roll_number" name="roll_number" required>
+        </div>
+        <div class="mb-3">
+            <label for="email" class="form-label">Email</label>
+            <input type="email" class="form-control" id="email" name="email" required>
+        </div>
+        <div class="mb-3">
+            <label for="class_group" class="form-label">Class</label>
+            <select class="form-control" id="class_group" name="class_group" required>
+                {% for class in form.class_group.field.queryset %}
+                    <option value="{{ class.id }}">{{ class }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <button type="submit" class="btn btn-primary">Add Student</button>
+    </form>
+{% endblock %}

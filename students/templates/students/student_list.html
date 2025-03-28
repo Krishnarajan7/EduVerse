@@ -4,6 +4,17 @@
 
 {% block content %}
     <h1 class="mb-3">EduVerse Students</h1>
+    <form method="get" class="mb-3">
+        <label for="class_id">Select Class:</label>
+        <select name="class_id" id="class_id" onchange="this.form.submit()">
+            <option value="">All Classes</option>
+            {% for class in classes %}
+                <option value="{{ class.id }}" {% if class.id|stringformat:"s" == request.GET.class_id %}selected{% endif %}>
+                    {{ class }}
+                </option>
+            {% endfor %}
+        </select>
+    </form>
     {% if students %}
         <table class="table table-striped">
             <thead>
@@ -11,6 +22,10 @@
                     <th>Name</th>
                     <th>Roll Number</th>
                     <th>Email</th>
+                    <th>Class</th>
+                    {% if user.faculty %}
+                        <th>Actions</th>
+                    {% endif %}
                 </tr>
             </thead>
             <tbody>
@@ -19,11 +34,18 @@
                     <td>{{ student.name }}</td>
                     <td>{{ student.roll_number }}</td>
                     <td>{{ student.email }}</td>
+                    <td>{{ student.class_group }}</td>
+                    {% if user.faculty %}
+                        <td>
+                            <a href="{% url 'update_student' student.id %}" class="btn btn-sm btn-warning">Edit</a>
+                            <a href="{% url 'delete_student' student.id %}" class="btn btn-sm btn-danger">Delete</a>
+                        </td>
+                    {% endif %}
                 </tr>
             {% endfor %}
             </tbody>
         </table>
     {% else %}
-        <p class="text-muted">No students yet—add some in the admin panel!</p>
+        <p class="text-muted">No students in this class—add some in the admin panel!</p>
     {% endif %}
 {% endblock %}

@@ -1,0 +1,51 @@
+{% extends 'base.html' %}
+
+{% block title %}Student Profile{% endblock %}
+
+{% block content %}
+    <h1 class="mb-3">Student Profile</h1>
+    {% if messages %}
+        {% for message in messages %}
+            <div class="alert alert-{{ message.tags }}">{{ message }}</div>
+        {% endfor %}
+    {% endif %}
+    <table class="table table-bordered">
+        <tr>
+            <th>Name</th>
+            <td>{{ student.name }}</td>
+        </tr>
+        <tr>
+            <th>Roll Number</th>
+            <td>{{ student.roll_number }}</td>
+        </tr>
+        <tr>
+            <th>Email</th>
+            <td>{{ student.email }}</td>
+        </tr>
+        <tr>
+            <th>Class</th>
+            <td>{{ student.class_group }}</td>
+        </tr>
+        <tr>
+            <th>Phone</th>
+            <td>{{ student.phone|default:"Not provided" }}</td>
+        </tr>
+        <tr>
+            <th>Address</th>
+            <td>{{ student.address|default:"Not provided" }}</td>
+        </tr>
+    </table>
+    <h2 class="mt-4">Update Your Details</h2>
+    <form method="post">
+        {% csrf_token %}
+        <div class="mb-3">
+            <label for="phone" class="form-label">Phone</label>
+            <input type="text" class="form-control" id="phone" name="phone" value="{{ form.phone.value|default_if_none:'' }}">
+        </div>
+        <div class="mb-3">
+            <label for="address" class="form-label">Address</label>
+            <textarea class="form-control" id="address" name="address">{{ form.address.value|default_if_none:'' }}</textarea>
+        </div>
+        <button type="submit" class="btn btn-primary">Update</button>
+    </form>
+{% endblock %}
