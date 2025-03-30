@@ -55,7 +55,7 @@ def delete_student(request, student_id):
     if request.method == 'POST':
         user = student.user
         student.delete()
-        user.delete()  # Also delete the associated user
+        user.delete() 
         messages.success(request, 'Student deleted successfully!')
         return redirect('student_list')
     return render(request, 'faculty/delete_student.html', {'student': student})
