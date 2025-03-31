@@ -1,6 +1,6 @@
 from django import forms
-from students.models import Student, Class
-from .models import Resource  # This should now work
+from students.models import Student, Subject, Class  # Ensure Subject is imported
+from .models import Resource
 
 class StudentForm(forms.ModelForm):
     class Meta:
@@ -21,7 +21,7 @@ class AttendanceForm(forms.ModelForm):
 
 class MarksForm(forms.ModelForm):
     class Meta:
-        model = Subject
+        model = Subject  # This should now work
         fields = ['name', 'marks']
 
 class ResourceForm(forms.ModelForm):
