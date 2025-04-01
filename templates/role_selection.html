@@ -1,0 +1,16 @@
+{% extends 'base.html' %}
+
+{% block title %}Select Role{% endblock %}
+
+{% block content %}
+    <h1 class="mb-3">Welcome to EduVerse</h1>
+    <p>Please select your role to proceed:</p>
+    <div class="row">
+        <div class="col-md-6">
+            <a href="{% url 'student_login' %}?next={% url 'student_dashboard' %}" class="btn btn-primary btn-lg w-100">I am a Student</a>
+        </div>
+        <div class="col-md-6">
+            <a href="{% url 'faculty_login' %}?next={% url 'faculty_dashboard' %}" class="btn btn-primary btn-lg w-100">I am a Staff</a>
+        </div>
+    </div>
+{% endblock %}

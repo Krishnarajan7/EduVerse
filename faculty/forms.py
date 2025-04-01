@@ -1,6 +1,6 @@
 from django import forms
-from students.models import Student, Subject, Class  # Ensure Subject is imported
-from .models import Resource
+from students.models import Student, Subject, Class
+from .models import Resource, Notice
 
 class StudentForm(forms.ModelForm):
     class Meta:
@@ -21,7 +21,7 @@ class AttendanceForm(forms.ModelForm):
 
 class MarksForm(forms.ModelForm):
     class Meta:
-        model = Subject  # This should now work
+        model = Subject
         fields = ['name', 'marks']
 
 class ResourceForm(forms.ModelForm):
@@ -31,3 +31,8 @@ class ResourceForm(forms.ModelForm):
         widgets = {
             'class_group': forms.Select(),
         }
+
+class NoticeForm(forms.ModelForm):  
+    class Meta:
+        model = Notice
+        fields = ['title', 'content']

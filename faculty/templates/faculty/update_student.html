@@ -13,23 +13,24 @@
         {% csrf_token %}
         <div class="mb-3">
             <label for="name" class="form-label">Name</label>
-            <input type="text" class="form-control" id="name" name="name" value="{{ student.name }}" required>
+            <input type="text" class="form-control" id="name" name="name" value="{{ form.name.value }}" required>
         </div>
         <div class="mb-3">
             <label for="roll_number" class="form-label">Roll Number</label>
-            <input type="text" class="form-control" id="roll_number" name="roll_number" value="{{ student.roll_number }}" required>
+            <input type="text" class="form-control" id="roll_number" name="roll_number" value="{{ form.roll_number.value }}" required>
         </div>
         <div class="mb-3">
             <label for="email" class="form-label">Email</label>
-            <input type="email" class="form-control" id="email" name="email" value="{{ student.email }}" required>
+            <input type="email" class="form-control" id="email" name="email" value="{{ form.email.value }}" required>
         </div>
         <div class="mb-3">
             <label for="class_group" class="form-label">Class</label>
             <select class="form-control" id="class_group" name="class_group" required>
+                <option value="" disabled>Select a class</option>
                 {% for class in form.class_group.field.queryset %}
-                    <option value="{{ class.id }}" {% if class.id == student.class_group.id %}selected{% endif %}>
-                        {{ class }}
-                    </option>
+                    <option value="{{ class.id }}" {% if class.id == form.class_group.value %}selected{% endif %}>{{ class }}</option>
+                {% empty %}
+                    <option value="" disabled>No classes available</option>
                 {% endfor %}
             </select>
         </div>

@@ -1,0 +1,31 @@
+{% extends 'base.html' %}
+
+{% block title %}Notices{% endblock %}
+
+{% block content %}
+    <h1 class="mb-3">Noticeboard</h1>
+    {% if messages %}
+        {% for message in messages %}
+            <div class="alert alert-{{ message.tags }}">{{ message }}</div>
+        {% endfor %}
+    {% endif %}
+    {% if notices %}
+        {% for notice in notices %}
+            <div class="card mb-3">
+                <div class="card-header">
+                    <h5>{{ notice.title }}</h5>
+                    <small>Posted by {{ notice.posted_by.staffName }} on {{ notice.posted_at }}</small>
+                </div>
+                <div class="card-body">
+                    <p>{{ notice.content }}</p>
+                    {% if user.is_authenticated and user.faculty %}
+                        <a href="{% url 'edit_notice' notice.id %}" class="btn btn-sm btn-warning">Edit</a>
+                        <a href="{% url 'delete_notice' notice.id %}" class="btn btn-sm btn-danger">Delete</a>
+                    {% endif %}
+                </div>
+            </div>
+        {% endfor %}
+    {% else %}
+        <p class="text-muted">No notices available yet.</p>
+    {% endif %}
+{% endblock %}

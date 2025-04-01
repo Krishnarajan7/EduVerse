@@ -1,0 +1,54 @@
+{% extends 'base.html' %}
+
+{% block title %}Faculty Dashboard{% endblock %}
+
+{% block content %}
+    <h1 class="mb-3">Welcome, {{ faculty.staffName }}!</h1>
+    <div class="row">
+        <div class="col-md-6">
+            <div class="card mb-3">
+                <div class="card-header">
+                    <h5>Your Stats</h5>
+                </div>
+                <div class="card-body">
+                    <p><strong>Total Students:</strong> {{ student_count }}</p>
+                    <p><strong>Email:</strong> {{ faculty.staffEmail }}</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card mb-3">
+                <div class="card-header">
+                    <h5>Your Recent Notices</h5>
+                </div>
+                <div class="card-body">
+                    {% if notices %}
+                        <ul>
+                            {% for notice in notices %}
+                                <li><strong>{{ notice.title }}</strong> ({{ notice.posted_at }}): {{ notice.content|truncatewords:10 }}</li>
+                            {% endfor %}
+                        </ul>
+                        <a href="{% url 'notice_list' %}" class="btn btn-sm btn-primary">View All Notices</a>
+                    {% else %}
+                        <p>You haven't posted any notices yet.</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-12">
+            <div class="card mb-3">
+                <div class="card-header">
+                    <h5>Quick Actions</h5>
+                </div>
+                <div class="card-body">
+                    <a href="{% url 'add_student' %}" class="btn btn-primary me-2">Add Student</a>
+                    <a href="{% url 'student_list' %}" class="btn btn-primary me-2">Manage Students</a>
+                    <a href="{% url 'post_notice' %}" class="btn btn-primary me-2">Post Notice</a>
+                    <a href="{% url 'upload_resource' %}" class="btn btn-primary">Upload Resource</a>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
