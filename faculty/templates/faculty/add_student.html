@@ -3,34 +3,58 @@
 {% block title %}Add Student{% endblock %}
 
 {% block content %}
-    <h1 class="mb-3">Add a New Student</h1>
-    {% if messages %}
-        {% for message in messages %}
-            <div class="alert alert-{{ message.tags }}">{{ message }}</div>
-        {% endfor %}
-    {% endif %}
-    <form method="post">
-        {% csrf_token %}
-        <div class="mb-3">
-            <label for="name" class="form-label">Name</label>
-            <input type="text" class="form-control" id="name" name="name" required>
-        </div>
-        <div class="mb-3">
-            <label for="roll_number" class="form-label">Roll Number</label>
-            <input type="text" class="form-control" id="roll_number" name="roll_number" required>
-        </div>
-        <div class="mb-3">
-            <label for="email" class="form-label">Email</label>
-            <input type="email" class="form-control" id="email" name="email" required>
-        </div>
-        <div class="mb-3">
-            <label for="class_group" class="form-label">Class</label>
-            <select class="form-control" id="class_group" name="class_group" required>
-                {% for class in form.class_group.field.queryset %}
-                    <option value="{{ class.id }}">{{ class }}</option>
-                {% endfor %}
-            </select>
-        </div>
-        <button type="submit" class="btn btn-primary">Add Student</button>
-    </form>
+    <div class="text-center mt-5">
+        <h1 class="mb-3">Add New Student</h1>
+        <form method="post" class="w-50 mx-auto">
+            {% csrf_token %}
+            <div class="mb-3">
+                <label for="username" class="form-label">Username</label>
+                <input type="text" class="form-control" id="username" name="username" required>
+            </div>
+            <div class="mb-3">
+                <label for="password" class="form-label">Password</label>
+                <input type="password" class="form-control" id="password" name="password" required>
+            </div>
+            <div class="mb-3">
+                <label for="name" class="form-label">Name</label>
+                <input type="text" class="form-control" id="name" name="name" required>
+            </div>
+            <div class="mb-3">
+                <label for="roll_number" class="form-label">Roll Number</label>
+                <input type="text" class="form-control" id="roll_number" name="roll_number" required>
+            </div>
+            <div class="mb-3">
+                <label for="email" class="form-label">Email</label>
+                <input type="email" class="form-control" id="email" name="email" required>
+            </div>
+            <div class="mb-3">
+                <label for="class_group" class="form-label">Class</label>
+                <select class="form-control" id="class_group" name="class_group" required>
+                    {% for class in form.class_group.field.queryset %}
+                        <option value="{{ class.id }}">{{ class }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="mb-3">
+                <label for="phone" class="form-label">Phone Number</label>
+                <input type="text" class="form-control" id="phone" name="phone">
+            </div>
+            <div class="mb-3">
+                <label for="address" class="form-label">Address</label>
+                <textarea class="form-control" id="address" name="address"></textarea>
+            </div>
+            <div class="mb-3">
+                <label for="age" class="form-label">Age</label>
+                <input type="number" class="form-control" id="age" name="age">
+            </div>
+            <div class="mb-3">
+                <label for="dob" class="form-label">Date of Birth</label>
+                <input type="date" class="form-control" id="dob" name="dob">
+            </div>
+            <button type="submit" class="btn btn-success w-100">Add Student</button>
+        </form>
+        <p class="mt-3">
+            <a href="{% url 'student_list' %}">Back to Student List</a>
+        </p>
+    </div>
 {% endblock %}

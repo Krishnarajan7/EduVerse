@@ -14,7 +14,7 @@ class Class(models.Model):
     def __str__(self):
         return f"{self.year} {self.department} {self.section}"
 
-class Subject(models.Model):  # Ensure this is defined
+class Subject(models.Model):
     name = models.CharField(max_length=100)
     student = models.ForeignKey('Student', on_delete=models.CASCADE, related_name='marks')
     marks = models.IntegerField()
@@ -32,6 +32,8 @@ class Student(models.Model):
     address = models.TextField(blank=True, null=True)
     total_classes = models.IntegerField(default=0)
     classes_attended = models.IntegerField(default=0)
+    age = models.PositiveIntegerField(null=True, blank=True)  # New field
+    dob = models.DateField(null=True, blank=True)  # New field
 
     def attendance_percentage(self):
         if self.total_classes == 0:

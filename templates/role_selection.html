@@ -3,14 +3,20 @@
 {% block title %}Select Role{% endblock %}
 
 {% block content %}
-    <h1 class="mb-3">Welcome to EduVerse</h1>
-    <p>Please select your role to proceed:</p>
-    <div class="row">
-        <div class="col-md-6">
-            <a href="/student-login/?next=/students/dashboard/" class="btn btn-primary btn-lg w-100">I am a Student</a>
-        </div>
-        <div class="col-md-6">
-            <a href="/faculty-login/?next=/faculty/dashboard/" class="btn btn-primary btn-lg w-100">I am a Staff</a>
+    <div class="text-center mt-5">
+        <h1 class="display-4 mb-3">Welcome to EduVerse</h1>
+        <p class="lead mb-4">Please select your role to proceed:</p>
+        <div class="row justify-content-center">
+            <div class="col-md-4">
+                <a href="{% url 'student_login' %}?next={% url 'student_dashboard' %}" class="btn btn-primary btn-lg w-100 mb-3">
+                    <i class="fas fa-user-graduate me-2"></i>I am a Student
+                </a>
+            </div>
+            <div class="col-md-4">
+                <a href="{% url 'faculty_login' %}?next={% url 'faculty_dashboard' %}" class="btn btn-success btn-lg w-100 mb-3">
+                    <i class="fas fa-chalkboard-teacher me-2"></i>I am a Staff
+                </a>
+            </div>
         </div>
     </div>
 {% endblock %}
