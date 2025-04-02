@@ -14,8 +14,8 @@ def student_list(request):
 
 @login_required
 def student_profile(request):
-    if not hasattr(request.user, 'student'):
-        return redirect('home')
+    if request.user.is_superuser or not hasattr(request.user, 'student'):
+        return redirect('role_selection')
     student = request.user.student
     if request.method == 'POST':
         student.phone = request.POST.get('phone')
@@ -28,8 +28,8 @@ def student_profile(request):
 
 @login_required
 def student_dashboard(request):
-    if not hasattr(request.user, 'student'):
-        return redirect('home')
+    if request.user.is_superuser or not hasattr(request.user, 'student'):
+        return redirect('role_selection')
     student = request.user.student
     notices = Notice.objects.all().order_by('-posted_at')[:5]
     resources = Resource.objects.filter(class_group=student.class_group).order_by('-uploaded_at')[:5]

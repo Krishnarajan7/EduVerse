@@ -25,7 +25,15 @@
                     <li class="nav-item">
                         <a class="nav-link" href="{% url 'notice_list' %}">Notices</a>
                     </li>
-                    {% if user.is_authenticated and user.faculty %}
+                    {% if user.is_authenticated and not user.is_superuser and user.student %}
+                        <li class="nav-item">
+                            <a class="nav-link" href="{% url 'student_dashboard' %}">Dashboard</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{% url 'student_profile' %}">My Profile</a>
+                        </li>
+                    {% endif %}
+                    {% if user.is_authenticated and not user.is_superuser and user.faculty %}
                         <li class="nav-item">
                             <a class="nav-link" href="{% url 'faculty_dashboard' %}">Dashboard</a>
                         </li>
@@ -37,14 +45,6 @@
                         </li>
                         <li class="nav-item">
                             <a class="nav-link" href="{% url 'post_notice' %}">Post Notice</a>
-                        </li>
-                    {% endif %}
-                    {% if user.is_authenticated and user.student %}
-                        <li class="nav-item">
-                            <a class="nav-link" href="{% url 'student_dashboard' %}">Dashboard</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="{% url 'student_profile' %}">My Profile</a>
                         </li>
                     {% endif %}
                 </ul>

@@ -7,15 +7,15 @@ from django.contrib import messages
 
 @login_required
 def faculty_list(request):
-    if not hasattr(request.user, 'faculty'):
-        return redirect('home')
+    if request.user.is_superuser or not hasattr(request.user, 'faculty'):
+        return redirect('role_selection')
     faculty = Faculty.objects.all()
     return render(request, 'faculty/faculty_list.html', {'faculty': faculty})
 
 @login_required
 def faculty_dashboard(request):
-    if not hasattr(request.user, 'faculty'):
-        return redirect('home')
+    if request.user.is_superuser or not hasattr(request.user, 'faculty'):
+        return redirect('role_selection')
     faculty = request.user.faculty
     student_count = Student.objects.count()
     notices = Notice.objects.filter(posted_by=faculty).order_by('-posted_at')[:5]
@@ -27,8 +27,8 @@ def faculty_dashboard(request):
 
 @login_required
 def add_student(request):
-    if not hasattr(request.user, 'faculty'):
-        return redirect('home')
+    if request.user.is_superuser or not hasattr(request.user, 'faculty'):
+        return redirect('role_selection')
     if request.method == 'POST':
         form = StudentForm(request.POST)
         if form.is_valid():
@@ -47,8 +47,8 @@ def add_student(request):
 
 @login_required
 def update_student(request, student_id):
-    if not hasattr(request.user, 'faculty'):
-        return redirect('home')
+    if request.user.is_superuser or not hasattr(request.user, 'faculty'):
+        return redirect('role_selection')
     student = get_object_or_404(Student, id=student_id)
     if request.method == 'POST':
         form = StudentForm(request.POST, instance=student)
@@ -62,8 +62,8 @@ def update_student(request, student_id):
 
 @login_required
 def delete_student(request, student_id):
-    if not hasattr(request.user, 'faculty'):
-        return redirect('home')
+    if request.user.is_superuser or not hasattr(request.user, 'faculty'):
+        return redirect('role_selection')
     student = get_object_or_404(Student, id=student_id)
     if request.method == 'POST':
         user = student.user
@@ -75,8 +75,8 @@ def delete_student(request, student_id):
 
 @login_required
 def manage_attendance(request, student_id):
-    if not hasattr(request.user, 'faculty'):
-        return redirect('home')
+    if request.user.is_superuser or not hasattr(request.user, 'faculty'):
+        return redirect('role_selection')
     student = get_object_or_404(Student, id=student_id)
     if request.method == 'POST':
         form = AttendanceForm(request.POST, instance=student)
@@ -90,8 +90,8 @@ def manage_attendance(request, student_id):
 
 @login_required
 def add_marks(request, student_id):
-    if not hasattr(request.user, 'faculty'):
-        return redirect('home')
+    if request.user.is_superuser or not hasattr(request.user, 'faculty'):
+        return redirect('role_selection')
     student = get_object_or_404(Student, id=student_id)
     if request.method == 'POST':
         form = MarksForm(request.POST)
@@ -107,8 +107,8 @@ def add_marks(request, student_id):
 
 @login_required
 def upload_resource(request):
-    if not hasattr(request.user, 'faculty'):
-        return redirect('home')
+    if request.user.is_superuser or not hasattr(request.user, 'faculty'):
+        return redirect('role_selection')
     if request.method == 'POST':
         form = ResourceForm(request.POST, request.FILES)
         if form.is_valid():
@@ -123,8 +123,8 @@ def upload_resource(request):
 
 @login_required
 def post_notice(request):
-    if not hasattr(request.user, 'faculty'):
-        return redirect('home')
+    if request.user.is_superuser or not hasattr(request.user, 'faculty'):
+        return redirect('role_selection')
     if request.method == 'POST':
         form = NoticeForm(request.POST)
         if form.is_valid():
@@ -139,8 +139,8 @@ def post_notice(request):
 
 @login_required
 def edit_notice(request, notice_id):
-    if not hasattr(request.user, 'faculty'):
-        return redirect('home')
+    if request.user.is_superuser or not hasattr(request.user, 'faculty'):
+        return redirect('role_selection')
     notice = get_object_or_404(Notice, id=notice_id)
     if request.method == 'POST':
         form = NoticeForm(request.POST, instance=notice)
@@ -154,8 +154,8 @@ def edit_notice(request, notice_id):
 
 @login_required
 def delete_notice(request, notice_id):
-    if not hasattr(request.user, 'faculty'):
-        return redirect('home')
+    if request.user.is_superuser or not hasattr(request.user, 'faculty'):
+        return redirect('role_selection')
     notice = get_object_or_404(Notice, id=notice_id)
     if request.method == 'POST':
         notice.delete()
@@ -165,5 +165,7 @@ def delete_notice(request, notice_id):
 
 @login_required
 def notice_list(request):
+    if request.user.is_superuser:
+        return redirect('role_selection')
     notices = Notice.objects.all().order_by('-posted_at')
     return render(request, 'faculty/notice_list.html', {'notices': notices})
