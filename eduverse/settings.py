@@ -26,6 +26,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'django.contrib.humanize',
     'students',
     'faculty',
 ]
@@ -112,7 +113,12 @@ USE_TZ = True
 
 STATIC_URL = 'static/'
 
-LOGIN_URL = 'role_selection'
+LOGIN_REDIRECT_URL = '/home/'
+LOGIN_URL = '/role_selection/'
+LOGOUT_REDIRECT_URL = '/role_selection/'
+
+MEDIA_URL = '/media/'
+MEDIA_ROOT = BASE_DIR / 'media'
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.0/ref/settings/#default-auto-field
