@@ -1,18 +1,15 @@
 from django import forms
-from students.models import Student, Subject, Class
-from .models import Resource, Notice
+from students.models import Student, Class, Subject
+from .models import Notice, Resource, Faculty
 
 class StudentForm(forms.ModelForm):
     class Meta:
         model = Student
-        fields = ['name', 'roll_number', 'email', 'class_group']
+        fields = ['name', 'roll_number', 'email', 'class_group', 'phone', 'address', 'age', 'dob', 'total_classes', 'classes_attended', 'profile_picture']
         widgets = {
-            'class_group': forms.Select(),
+            'dob': forms.DateInput(attrs={'type': 'date'}),
+            'profile_picture': forms.ClearableFileInput(),
         }
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        print("Class queryset:", self.fields['class_group'].queryset)
 
 class AttendanceForm(forms.ModelForm):
     class Meta:
@@ -28,11 +25,17 @@ class ResourceForm(forms.ModelForm):
     class Meta:
         model = Resource
         fields = ['title', 'file', 'class_group']
-        widgets = {
-            'class_group': forms.Select(),
-        }
 
-class NoticeForm(forms.ModelForm):  
+class NoticeForm(forms.ModelForm):
     class Meta:
         model = Notice
         fields = ['title', 'content']
+
+class FacultyForm(forms.ModelForm):
+    class Meta:
+        model = Faculty
+        fields = ['name', 'email', 'phone', 'age', 'dob', 'profile_picture']
+        widgets = {
+            'dob': forms.DateInput(attrs={'type': 'date'}),
+            'profile_picture': forms.ClearableFileInput(),
+        }

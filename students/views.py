@@ -2,6 +2,8 @@ from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
 from .models import Student, Class
 from faculty.models import Notice, Resource
+from .forms import StudentForm, StudentProfileForm
+from django.contrib import messages
 
 @login_required
 def student_list(request):
@@ -25,6 +27,20 @@ def student_profile(request):
         messages.success(request, 'Profile updated successfully!')
         return redirect('student_profile')
     return render(request, 'students/student_profile.html', {'student': student})
+
+@login_required
+def edit_student_profile(request):
+    student = request.user.student
+    if request.method == 'POST':
+        form = StudentProfileForm(request.POST, request.FILES, instance=student)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Profile updated successfully!')
+            return redirect('student_profile')
+    else:
+        form = StudentProfileForm(instance=student)
+    return render(request, 'students/edit_student_profile.html', {'form': form})
+
 
 @login_required
 def student_dashboard(request):

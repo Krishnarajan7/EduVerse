@@ -1,51 +1,179 @@
 {% extends 'base.html' %}
+{% load humanize %}
+{% load mathfilters %}
 
-{% block title %}Student Profile{% endblock %}
+{% block title %}My Profile{% endblock %}
 
 {% block content %}
-    <h1 class="mb-3">Student Profile</h1>
-    {% if messages %}
-        {% for message in messages %}
-            <div class="alert alert-{{ message.tags }}">{{ message }}</div>
-        {% endfor %}
-    {% endif %}
-    <table class="table table-bordered">
-        <tr>
-            <th>Name</th>
-            <td>{{ student.name }}</td>
-        </tr>
-        <tr>
-            <th>Roll Number</th>
-            <td>{{ student.roll_number }}</td>
-        </tr>
-        <tr>
-            <th>Email</th>
-            <td>{{ student.email }}</td>
-        </tr>
-        <tr>
-            <th>Class</th>
-            <td>{{ student.class_group }}</td>
-        </tr>
-        <tr>
-            <th>Phone</th>
-            <td>{{ student.phone|default:"Not provided" }}</td>
-        </tr>
-        <tr>
-            <th>Address</th>
-            <td>{{ student.address|default:"Not provided" }}</td>
-        </tr>
-    </table>
-    <h2 class="mt-4">Update Your Details</h2>
-    <form method="post">
-        {% csrf_token %}
-        <div class="mb-3">
-            <label for="phone" class="form-label">Phone</label>
-            <input type="text" class="form-control" id="phone" name="phone" value="{{ form.phone.value|default_if_none:'' }}">
+    <div class="text-center mt-5">
+        <h1 class="mb-3">My Profile</h1>
+        <div class="card w-75 mx-auto">
+            <div class="card-body">
+                <!-- Profile Picture -->
+                {% if user.student.profile_picture %}
+                    <img src="{{ user.student.profile_picture.url }}" alt="{{ user.student.name }}" class="rounded-circle mb-3" style="width: 150px; height: 150px; object-fit: cover;">
+                {% else %}
+                    <i class="fas fa-user-circle fa-5x text-muted mb-3"></i>
+                {% endif %}
+
+                <!-- Basic Details -->
+                <h5 class="card-title">{{ user.student.name }}</h5>
+                <p class="card-text"><strong>Roll Number:</strong> {{ user.student.roll_number }}</p>
+                <p class="card-text"><strong>Email:</strong> {{ user.student.email }}</p>
+                <p class="card-text"><strong>Class:</strong> {{ user.student.class_group }}</p>
+                <p class="card-text"><strong>Phone:</strong> {{ user.student.phone|default:"Not provided" }}</p>
+                <p class="card-text"><strong>Address:</strong> {{ user.student.address|default:"Not provided" }}</p>
+                <p class="card-text"><strong>Age:</strong> {{ user.student.age|default:"Not provided" }}</p>
+                <p class="card-text"><strong>Date of Birth:</strong> {{ user.student.dob|default:"Not provided" }}</p>
+
+                <!-- Attendance History -->
+                <h6 class="mt-4">Attendance History</h6>
+                {% if user.student.attendances.all %}
+                    <table class="table table-striped w-75 mx-auto">
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for attendance in user.student.attendances.all %}
+                                <tr>
+                                    <td>{{ attendance.date }}</td>
+                                    <td>{{ attendance.is_present|yesno:"Present,Absent" }}</td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                    <p><strong>Total Present Days:</strong> {{ user.student.attendances.filter(is_present=True).count }}</p>
+                    <p><strong>Total Days Recorded:</strong> {{ user.student.attendances.count }}</p>
+                    <p><strong>Attendance Percentage:</strong> 
+                        {% with total=user.student.attendances.count present=user.student.attendances.filter(is_present=True).count %}
+                            {% if total > 0 %}
+                                {{ present|floatformat:2|div:total|mul:100|floatformat:2 }}%
+                            {% else %}
+                                0%
+                            {% endif %}
+                        {% endwith %}
+                    </p>
+                {% else %}
+                    <p>No attendance records found.</p>
+                {% endif %}
+
+                <!-- Fee Details -->
+                <h6 class="mt-4">Fee Details</h6>
+                {% if user.student.fees.all %}
+                    <table class="table table-striped w-75 mx-auto">
+                        <thead>
+                            <tr>
+                                <th>Amount</th>
+                                <th>Due Date</th>
+                                <th>Status</th>
+                                <th>Paid Date</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for fee in user.student.fees.all %}
+                                <tr>
+                                    <td>{{ fee.amount }}</td>
+                                    <td>{{ fee.due_date }}</td>
+                                    <td>{{ fee.paid|yesno:"Paid,Unpaid" }}</td>
+                                    <td>{{ fee.paid_date|default:"N/A" }}</td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                    <p><strong>Total Amount Due:</strong> 
+                        {% with total_due=user.student.fees.filter(paid=False).aggregate(total=Sum('amount')) %}
+                            {{ total_due.total|default:"0.00" }}
+                        {% endwith %}
+                    </p>
+                {% else %}
+                    <p>No fee records found.</p>
+                {% endif %}
+
+                <!-- Marks/Subjects -->
+                <h6 class="mt-4">Academic Performance</h6>
+                {% if user.student.subjects.all %}
+                    <table class="table table-striped w-75 mx-auto">
+                        <thead>
+                            <tr>
+                                <th>Subject</th>
+                                <th>Marks</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for subject in user.student.subjects.all %}
+                                <tr>
+                                    <td>{{ subject.name }}</td>
+                                    <td>{{ subject.marks }}</td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                    <p><strong>Average Marks:</strong> 
+                        {% with total_marks=user.student.subjects.aggregate(avg=Avg('marks')) %}
+                            {{ total_marks.avg|floatformat:2|default:"N/A" }}
+                        {% endwith %}
+                    </p>
+                {% else %}
+                    <p>No marks recorded.</p>
+                {% endif %}
+
+                <!-- Notices -->
+                <h6 class="mt-4">Notices</h6>
+                {% if notices %}
+                    <table class="table table-striped w-75 mx-auto">
+                        <thead>
+                            <tr>
+                                <th>Title</th>
+                                <th>Content</th>
+                                <th>Posted On</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for notice in notices %}
+                                <tr>
+                                    <td>{{ notice.title }}</td>
+                                    <td>{{ notice.content }}</td>
+                                    <td>{{ notice.created_at|date:"Y-m-d" }}</td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                {% else %}
+                    <p>No notices available.</p>
+                {% endif %}
+
+                <!-- Resources -->
+                <h6 class="mt-4">Resources for {{ user.student.class_group }}</h6>
+                {% if resources %}
+                    <table class="table table-striped w-75 mx-auto">
+                        <thead>
+                            <tr>
+                                <th>Title</th>
+                                <th>File</th>
+                                <th>Uploaded On</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for resource in resources %}
+                                <tr>
+                                    <td>{{ resource.title }}</td>
+                                    <td><a href="{{ resource.file.url }}" target="_blank">Download</a></td>
+                                    <td>{{ resource.uploaded_at|date:"Y-m-d" }}</td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                {% else %}
+                    <p>No resources available for your class.</p>
+                {% endif %}
+            </div>
         </div>
-        <div class="mb-3">
-            <label for="address" class="form-label">Address</label>
-            <textarea class="form-control" id="address" name="address">{{ form.address.value|default_if_none:'' }}</textarea>
-        </div>
-        <button type="submit" class="btn btn-primary">Update</button>
-    </form>
+        <p class="mt-3">
+            <a href="{% url 'student_dashboard' %}" class="btn btn-primary">Back to Dashboard</a>
+            <a href="{% url 'edit_student_profile' %}" class="btn btn-warning">Edit Profile</a>
+        </p>
+    </div>
 {% endblock %}

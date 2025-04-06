@@ -1,0 +1,31 @@
+{% extends 'base.html' %}
+
+{% block title %}Edit Profile{% endblock %}
+
+{% block content %}
+    <div class="text-center mt-5">
+        <h1 class="mb-3">Edit Profile</h1>
+        {% if messages %}
+            {% for message in messages %}
+                <div class="alert alert-{{ message.tags }}">{{ message }}</div>
+            {% endfor %}
+        {% endif %}
+        <form method="post" enctype="multipart/form-data" class="w-50 mx-auto">
+            {% csrf_token %}
+            <div class="mb-3">
+                <label for="{{ form.phone.id_for_label }}" class="form-label">Phone</label>
+                {{ form.phone }}
+            </div>
+            <div class="mb-3">
+                <label for="{{ form.address.id_for_label }}" class="form-label">Address</label>
+                {{ form.address }}
+            </div>
+            <div class="mb-3">
+                <label for="{{ form.profile_picture.id_for_label }}" class="form-label">Profile Picture</label>
+                {{ form.profile_picture }}
+            </div>
+            <button type="submit" class="btn btn-primary">Save</button>
+            <a href="{% url 'student_profile' %}" class="btn btn-secondary">Cancel</a>
+        </form>
+    </div>
+{% endblock %}
