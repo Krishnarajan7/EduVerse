@@ -4,7 +4,7 @@ from .models import Student, Subject, Attendance, Fee
 class StudentForm(forms.ModelForm):
     class Meta:
         model = Student
-        fields = ['name', 'roll_number', 'email', 'class_group', 'phone', 'address', 'age', 'dob', 'profile_picture']
+        fields = ['name', 'roll_number', 'email', 'class_group', 'phone', 'address', 'dob', 'profile_picture']
         widgets = {
             'dob': forms.DateInput(attrs={'type': 'date'}),
             'profile_picture': forms.ClearableFileInput(),
