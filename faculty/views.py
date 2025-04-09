@@ -2,7 +2,7 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from .models import Faculty, Resource, Notice
 from .forms import StudentForm, AttendanceForm, MarksForm, ResourceForm, NoticeForm
-from students.models import Student, Subject
+from students.models import Student
 from django.contrib import messages
 
 @login_required
@@ -169,3 +169,12 @@ def notice_list(request):
         return redirect('role_selection')
     notices = Notice.objects.all().order_by('-posted_at')
     return render(request, 'faculty/notice_list.html', {'notices': notices})
+
+
+@login_required
+def notice_calendar(request):
+    if request.user.is_superuser or not hasattr(request.user, 'faculty'):
+        return redirect('role_selection')
+    faculty = request.user.faculty
+    notices = Notice.objects.all().order_by('-posted_at')
+    return render(request, 'faculty/notice_calendar.html', {'faculty': faculty, 'notices': notices})

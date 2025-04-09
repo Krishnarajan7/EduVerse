@@ -12,7 +12,14 @@
         {% endif %}
         <form method="post" class="w-50 mx-auto">
             {% csrf_token %}
-            {{ form.as_p }}
+            <div class="mb-3">
+                <label for="username" class="form-label">Username</label>
+                <input type="text" name="username" class="form-control" required>
+            </div>
+            <div class="mb-3">
+                <label for="password" class="form-label">Password</label>
+                <input type="password" name="password" class="form-control" required>
+            </div>
             <button type="submit" class="btn btn-primary">Login</button>
             <a href="{% url 'role_selection' %}" class="btn btn-secondary">Back</a>
         </form>

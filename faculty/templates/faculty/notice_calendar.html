@@ -1,0 +1,15 @@
+{% extends 'base.html' %}
+
+{% block title %}Notice Calendar{% endblock %}
+
+{% block content %}
+    <div class="text-center mt-5">
+        <h1>Notice Calendar for {{ faculty.name }}</h1>
+        <ul>
+            {% for notice in notices %}
+                <li>{{ notice.title }} - {{ notice.posted_at|date:"F d, Y" }}</li>
+            {% endfor %}
+        </ul>
+        <a href="{% url 'faculty_dashboard' %}" class="btn btn-primary">Back to Dashboard</a>
+    </div>
+{% endblock %}

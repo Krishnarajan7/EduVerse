@@ -9,10 +9,11 @@ class Student(models.Model):
     class_group = models.CharField(max_length=50)
     phone = models.CharField(max_length=15)
     address = models.TextField()
-    dob = models.DateField()
+    dob = models.DateField(blank=True, null=True)
     profile_picture = models.ImageField(upload_to='profile_pics/', blank=True, null=True)
     classes_attended = models.PositiveIntegerField(default=0)
     total_classes = models.PositiveIntegerField(default=0)
+    changed_password = models.BooleanField(default=False)
 
     def __str__(self):
         return f"{self.name} ({self.roll_number})"
@@ -72,3 +73,6 @@ class Fee(models.Model):
     def __str__(self):
         status = 'Paid' if self.paid else 'Unpaid'
         return f"{self.student.name} - ₹{self.amount} - {status}"
+
+
+

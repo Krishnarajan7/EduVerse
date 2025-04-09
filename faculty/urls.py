@@ -14,4 +14,5 @@ urlpatterns = [
     path('edit-notice/<int:notice_id>/', views.edit_notice, name='edit_notice'),
     path('delete-notice/<int:notice_id>/', views.delete_notice, name='delete_notice'),
     path('notices/', views.notice_list, name='notice_list'),
+    path('notice-calendar/', views.notice_calendar, name='notice_calendar'),  
 ]
