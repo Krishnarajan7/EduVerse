@@ -1,13 +1,10 @@
 from django.contrib import admin
 from django.urls import path, include
 from django.shortcuts import render, redirect
-from django.contrib.auth import views as auth_views, logout as auth_logout
+from django.contrib.auth import views as auth_views, logout
 from django.conf import settings
 from django.conf.urls.static import static
 from django.contrib import messages
-from django.utils.decorators import method_decorator
-from django.views.decorators.csrf import csrf_protect
-from django.contrib.auth import logout
 
 def role_selection(request):
     if request.user.is_authenticated and not request.user.is_superuser:
@@ -41,42 +38,21 @@ def accounts_profile_redirect(request):
             return redirect('faculty_dashboard')
     return redirect('role_selection')
 
-
 class StudentLoginView(auth_views.LoginView):
     template_name = 'students/student_login.html'
     redirect_authenticated_user = True
 
-    @method_decorator(csrf_protect)
-    def dispatch(self, request, *args, **kwargs):
-        if request.user.is_authenticated:
-            if request.user.is_superuser:
-                logout(request)
-                return redirect('student_login')  # Refresh login page after logout
-            elif hasattr(request.user, 'student'):
-                return redirect('student_dashboard')
-        return super().dispatch(request, *args, **kwargs)
-
     def get_success_url(self):
-        return '/students/dashboard/'
-
+        return reverse_lazy('student_dashboard')  
 
 class FacultyLoginView(auth_views.LoginView):
     template_name = 'faculty/faculty_login.html'
     redirect_authenticated_user = True
 
-    @method_decorator(csrf_protect)
-    def dispatch(self, request, *args, **kwargs):
-        if request.user.is_authenticated:
-            if request.user.is_superuser:
-                logout(request)
-                return redirect('faculty_login')  # Refresh login page after logout
-            elif hasattr(request.user, 'faculty'):
-                return redirect('faculty_dashboard')
-        return super().dispatch(request, *args, **kwargs)
-
     def get_success_url(self):
-        return '/faculty/dashboard/'
+        return reverse_lazy('faculty_dashboard')  
 
+from django.urls import reverse_lazy 
 
 urlpatterns = [
     path('', role_selection, name='role_selection'),

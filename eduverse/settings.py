@@ -68,7 +68,7 @@ WSGI_APPLICATION = 'eduverse.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'eduverse',
+        'NAME': 'Eduverse',
         'USER': 'postgres',
         'PASSWORD':'krishxop007',
         'HOST':'localhost',
