@@ -1,0 +1,11 @@
+username,password,name,roll_number,class_group,email
+student1,student123,Student One,CSE001,1st CSE A,student1@example.com
+student2,student123,Student Two,CSE002,1st CSE A,student2@example.com
+student3,student123,Student Three,CSE003,1st CSE B,student3@example.com
+student4,student123,Student Four,CSE004,1st CSE B,student4@example.com
+student5,student123,Student Five,CSE005,2nd CSE A,student5@example.com
+student6,student123,Student Six,CSE006,2nd CSE A,student6@example.com
+student7,student123,Student Seven,CSE007,2nd CSE B,student7@example.com
+student8,student123,Student Eight,CSE008,2nd CSE B,student8@example.com
+student9,student123,Student Nine,CSE009,3rd CSE A,student9@example.com
+student10,student123,Student Ten,CSE010,3rd CSE A,student10@example.com
