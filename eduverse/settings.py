@@ -27,8 +27,8 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'django.contrib.humanize',
-    'students',
-    'faculty',
+    'students.apps.StudentsConfig',
+    'faculty.apps.FacultyConfig',
 ]
 
 MIDDLEWARE = [
@@ -68,7 +68,7 @@ WSGI_APPLICATION = 'eduverse.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'Eduverse',
+        'NAME': 'Eduverse_DB',
         'USER': 'postgres',
         'PASSWORD':'krishxop007',
         'HOST':'localhost',
