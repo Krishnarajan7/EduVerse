@@ -3,67 +3,46 @@
 {% block title %}Student Dashboard{% endblock %}
 
 {% block content %}
-    <h1 class="mb-3">Welcome, {{ student.name }}!</h1>
-    <div class="row">
-        <div class="col-md-6">
-            <div class="card mb-3">
-                <div class="card-header">
-                    <h5>Your Stats</h5>
-                </div>
-                <div class="card-body">
-                    <p><strong>Class:</strong> {{ student.class_group }}</p>
-                    <p><strong>Attendance:</strong> {{ student.attendance_percentage|floatformat:2 }}%</p>
-                    {% if student.marks.all %}
-                        <p><strong>Recent Marks:</strong></p>
-                        <ul>
-                            {% for mark in student.marks.all|slice:":3" %}
-                                <li>{{ mark.name }}: {{ mark.marks }}</li>
-                            {% endfor %}
-                        </ul>
-                    {% else %}
-                        <p>No marks available yet.</p>
-                    {% endif %}
-                </div>
-            </div>
-        </div>
-        <div class="col-md-6">
-            <div class="card mb-3">
-                <div class="card-header">
-                    <h5>Recent Notices</h5>
-                </div>
-                <div class="card-body">
-                    {% if notices %}
-                        <ul>
-                            {% for notice in notices %}
-                                <li><strong>{{ notice.title }}</strong> ({{ notice.posted_at }}): {{ notice.content|truncatewords:10 }}</li>
-                            {% endfor %}
-                        </ul>
-                        <a href="{% url 'notice_list' %}" class="btn btn-sm btn-primary">View All Notices</a>
-                    {% else %}
-                        <p>No notices available.</p>
-                    {% endif %}
-                </div>
-            </div>
-        </div>
+    <div class="text-center mt-5">
+        <h1>Welcome, {{ student.name }} (Roll: {{ student.roll_number }})</h1>
+        <p>Class: {{ student.class_group }}</p>
     </div>
-    <div class="row">
-        <div class="col-md-12">
-            <div class="card mb-3">
-                <div class="card-header">
-                    <h5>Resources for Your Class</h5>
+
+    <div class="row mt-4">
+        <div class="col-md-6">
+            <h3>Notices</h3>
+            {% for notice in notices %}
+                <div class="card mb-3">
+                    <div class="card-header">
+                        {{ notice.title }}
+                    </div>
+                    <div class="card-body">
+                        <p class="card-text">{{ notice.content|truncatewords:20 }}</p>
+                        <p class="text-muted">Posted by: {{ notice.posted_by.name }} on {{ notice.posted_at|date:"F d, Y" }}</p>
+                    </div>
                 </div>
-                <div class="card-body">
-                    {% if resources %}
-                        <ul>
-                            {% for resource in resources %}
-                                <li><a href="{{ resource.file.url }}" download>{{ resource.title }}</a> (Uploaded on {{ resource.uploaded_at }})</li>
-                            {% endfor %}
-                        </ul>
-                    {% else %}
-                        <p>No resources available for your class.</p>
-                    {% endif %}
+            {% empty %}
+                <p>No notices available.</p>
+            {% endfor %}
+        </div>
+
+        <div class="col-md-6">
+            <h3>Resources for Your Class</h3>
+            {% for resource in resources %}
+                <div class="card mb-3">
+                    <div class="card-header">
+                        {{ resource.title }}
+                    </div>
+                    <div class="card-body">
+                        <p class="card-text"><a href="{{ resource.file.url }}" download="{{ resource.title }}">Download</a> (Uploaded on {{ resource.uploaded_at|date:"F d, Y" }})</p>
+                        {% if resource.uploaded_by %}
+                            <p class="text-muted">Uploaded by: {{ resource.uploaded_by.name }}</p>
+                        {% endif %}
+                    </div>
                 </div>
-            </div>
+            {% empty %}
+                <p>No resources available.</p>
+            {% endfor %}
         </div>
     </div>
 {% endblock %}
