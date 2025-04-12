@@ -3,54 +3,44 @@
 {% block title %}Student List{% endblock %}
 
 {% block content %}
-    <div class="text-center mt-5">
-        <h1 class="mb-3">Student List</h1>
-        {% if messages %}
-            {% for message in messages %}
-                <div class="alert alert-{{ message.tags }}">{{ message }}</div>
+    <h1>Student List</h1>
+    <form method="GET" class="mb-3">
+        <select name="class_id" onchange="this.form.submit()">
+            <option value="">All Classes</option>
+            {% for class in classes %}
+                <option value="{{ class.id }}" {% if selected_class == class.id|stringformat:"s" %}selected{% endif %}>{{ class }}</option>
             {% endfor %}
-        {% endif %}
-        {% if students %}
-            <table class="table table-striped w-75 mx-auto">
-                <thead>
-                    <tr>
-                        <th>Profile Picture</th>
-                        <th>Name</th>
-                        <th>Roll Number</th>
-                        <th>Email</th>
-                        <th>Class</th>
-                        <th>Actions</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for student in students %}
-                        <tr>
-                            <td>
-                                {% if student.profile_picture %}
-                                    <img src="{{ student.profile_picture.url }}" alt="{{ student.name }}" style="width: 50px; height: 50px; object-fit: cover; border-radius: 50%;">
-                                {% else %}
-                                    <i class="fas fa-user-circle fa-2x text-muted"></i>
-                                {% endif %}
-                            </td>
-                            <td>{{ student.name }}</td>
-                            <td>{{ student.roll_number }}</td>
-                            <td>{{ student.email }}</td>
-                            <td>{{ student.class_group }}</td>
-                            <td>
-                                <a href="{% url 'update_student' student.id %}" class="btn btn-sm btn-warning">Edit</a>
-                                <a href="{% url 'delete_student' student.id %}" class="btn btn-sm btn-danger">Delete</a>
-                                <a href="{% url 'manage_attendance' student.id %}" class="btn btn-sm btn-info">Attendance</a>
-                                <a href="{% url 'add_marks' student.id %}" class="btn btn-sm btn-primary">Add Marks</a>
-                            </td>
-                        </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-        {% else %}
-            <p>No students found.</p>
-        {% endif %}
-        <p class="mt-3">
-            <a href="{% url 'faculty_dashboard' %}" class="btn btn-primary">Back to Dashboard</a>
-        </p>
-    </div>
+        </select>
+    </form>
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Profile Picture</th>
+                <th>Name</th>
+                <th>Roll Number</th>
+                <th>Email</th>
+                <th>Class</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for student in students %}
+                <tr>
+                    <td><i class="fas fa-user-circle"></i></td>
+                    <td>{{ student.name }}</td>
+                    <td>{{ student.roll_number }}</td>
+                    <td>{{ student.email }}</td>
+                    <td>{{ student.class_group }}</td>
+                    <td>
+                        {% if request.user.is_superuser or request.user.faculty %}
+                            <a href="#" class="btn btn-warning btn-sm">Edit</a>
+                            <a href="#" class="btn btn-danger btn-sm">Delete</a>
+                            <a href="#" class="btn btn-info btn-sm">Attendance</a>
+                            <a href="#" class="btn btn-primary btn-sm">Add Marks</a>
+                        {% endif %}
+                    </td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
 {% endblock %}

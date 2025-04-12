@@ -1,6 +1,5 @@
 {% extends 'base.html' %}
 {% load humanize %}
-{% load mathfilters %}
 
 {% block title %}My Profile{% endblock %}
 
@@ -16,15 +15,21 @@
                     <i class="fas fa-user-circle fa-5x text-muted mb-3"></i>
                 {% endif %}
 
-                <!-- Basic Details -->
+                <!-- General Information -->
                 <h5 class="card-title">{{ user.student.name }}</h5>
-                <p class="card-text"><strong>Roll Number:</strong> {{ user.student.roll_number }}</p>
-                <p class="card-text"><strong>Email:</strong> {{ user.student.email }}</p>
-                <p class="card-text"><strong>Class:</strong> {{ user.student.class_group }}</p>
-                <p class="card-text"><strong>Phone:</strong> {{ user.student.phone|default:"Not provided" }}</p>
-                <p class="card-text"><strong>Address:</strong> {{ user.student.address|default:"Not provided" }}</p>
-                <p class="card-text"><strong>Age:</strong> {{ user.student.age|default:"Not provided" }}</p>
-                <p class="card-text"><strong>Date of Birth:</strong> {{ user.student.dob|default:"Not provided" }}</p>
+                <ul class="list-group list-group-flush">
+                    <li class="list-group-item"><strong>Roll No:</strong> {{ user.student.roll_number }}</li>
+                    <li class="list-group-item"><strong>Gender:</strong> {{ user.student.gender|default:"Not provided" }}</li>
+                    <li class="list-group-item"><strong>Father's Name:</strong> {{ user.student.father_name|default:"Not provided" }}</li>
+                    <li class="list-group-item"><strong>Mother's Name:</strong> {{ user.student.mother_name|default:"Not provided" }}</li>
+                    <li class="list-group-item"><strong>Student Mobile No:</strong> {{ user.student.phone|default:"Not provided" }}</li>
+                    <li class="list-group-item"><strong>Parent Mobile No:</strong> {{ user.student.parent_phone|default:"Not provided" }}</li>
+                    <li class="list-group-item"><strong>Community:</strong> {{ user.student.community|default:"Not provided" }}</li>
+                    <li class="list-group-item"><strong>Date of Birth:</strong> {{ user.student.dob|date:"d/m/Y"|default:"Not provided" }}</li>
+                    <li class="list-group-item"><strong>Place of Birth:</strong> {{ user.student.place_of_birth|default:"Not provided" }}</li>
+                    <li class="list-group-item"><strong>Admission Date:</strong> {{ user.student.admission_date|date:"d/m/Y"|default:"Not provided" }}</li>
+                    <li class="list-group-item"><strong>Admission Type:</strong> {{ user.student.admission_type|default:"Not provided" }}</li>
+                </ul>
 
                 <!-- Attendance History -->
                 <h6 class="mt-4">Attendance History</h6>
@@ -45,23 +50,17 @@
                             {% endfor %}
                         </tbody>
                     </table>
-                    <p><strong>Total Present Days:</strong> {{ user.student.attendances.filter(is_present=True).count }}</p>
-                    <p><strong>Total Days Recorded:</strong> {{ user.student.attendances.count }}</p>
-                    <p><strong>Attendance Percentage:</strong> 
-                        {% with total=user.student.attendances.count present=user.student.attendances.filter(is_present=True).count %}
-                            {% if total > 0 %}
-                                {{ present|floatformat:2|div:total|mul:100|floatformat:2 }}%
-                            {% else %}
-                                0%
-                            {% endif %}
-                        {% endwith %}
-                    </p>
+                    <h6>Semester-Wise Attendance</h6>
+                    <p><strong>Semester 1 (Jan-May):</strong> {{ present_count_s1 }} / {{ total_attendances_s1 }} ({{ attendance_percentage_s1|floatformat:2 }}%)</p>
+                    <p><strong>Semester 2 (Jun-Dec):</strong> {{ present_count_s2 }} / {{ total_attendances_s2 }} ({{ attendance_percentage_s2|floatformat:2 }}%)</p>
+                    <p><strong>Overall:</strong> {{ present_count }} / {{ total_attendances }} ({{ attendance_percentage|floatformat:2 }}%)</p>
                 {% else %}
                     <p>No attendance records found.</p>
                 {% endif %}
 
                 <!-- Fee Details -->
                 <h6 class="mt-4">Fee Details</h6>
+                <p><strong>Total Amount Due:</strong> {{ total_due }}</p>
                 {% if user.student.fees.all %}
                     <table class="table table-striped w-75 mx-auto">
                         <thead>
@@ -83,91 +82,8 @@
                             {% endfor %}
                         </tbody>
                     </table>
-                    <p><strong>Total Amount Due:</strong> 
-                        {% with total_due=user.student.fees.filter(paid=False).aggregate(total=Sum('amount')) %}
-                            {{ total_due.total|default:"0.00" }}
-                        {% endwith %}
-                    </p>
                 {% else %}
                     <p>No fee records found.</p>
-                {% endif %}
-
-                <!-- Marks/Subjects -->
-                <h6 class="mt-4">Academic Performance</h6>
-                {% if user.student.subjects.all %}
-                    <table class="table table-striped w-75 mx-auto">
-                        <thead>
-                            <tr>
-                                <th>Subject</th>
-                                <th>Marks</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% for subject in user.student.subjects.all %}
-                                <tr>
-                                    <td>{{ subject.name }}</td>
-                                    <td>{{ subject.marks }}</td>
-                                </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
-                    <p><strong>Average Marks:</strong> 
-                        {% with total_marks=user.student.subjects.aggregate(avg=Avg('marks')) %}
-                            {{ total_marks.avg|floatformat:2|default:"N/A" }}
-                        {% endwith %}
-                    </p>
-                {% else %}
-                    <p>No marks recorded.</p>
-                {% endif %}
-
-                <!-- Notices -->
-                <h6 class="mt-4">Notices</h6>
-                {% if notices %}
-                    <table class="table table-striped w-75 mx-auto">
-                        <thead>
-                            <tr>
-                                <th>Title</th>
-                                <th>Content</th>
-                                <th>Posted On</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% for notice in notices %}
-                                <tr>
-                                    <td>{{ notice.title }}</td>
-                                    <td>{{ notice.content }}</td>
-                                    <td>{{ notice.created_at|date:"Y-m-d" }}</td>
-                                </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
-                {% else %}
-                    <p>No notices available.</p>
-                {% endif %}
-
-                <!-- Resources -->
-                <h6 class="mt-4">Resources for {{ user.student.class_group }}</h6>
-                {% if resources %}
-                    <table class="table table-striped w-75 mx-auto">
-                        <thead>
-                            <tr>
-                                <th>Title</th>
-                                <th>File</th>
-                                <th>Uploaded On</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% for resource in resources %}
-                                <tr>
-                                    <td>{{ resource.title }}</td>
-                                    <td><a href="{{ resource.file.url }}" target="_blank">Download</a></td>
-                                    <td>{{ resource.uploaded_at|date:"Y-m-d" }}</td>
-                                </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
-                {% else %}
-                    <p>No resources available for your class.</p>
                 {% endif %}
             </div>
         </div>

@@ -29,6 +29,7 @@ INSTALLED_APPS = [
     'django.contrib.humanize',
     'students.apps.StudentsConfig',
     'faculty.apps.FacultyConfig',
+    'mathfilters'
 ]
 
 MIDDLEWARE = [
