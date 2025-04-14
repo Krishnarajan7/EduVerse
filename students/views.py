@@ -1,122 +1,43 @@
 from django.shortcuts import render, redirect
-from django.contrib.auth.decorators import login_required, user_passes_test
-from django.contrib.auth import update_session_auth_hash, authenticate, login
+from django.contrib.auth.decorators import login_required
+from django.contrib.auth import login, authenticate, logout
 from django.contrib import messages
-from .models import Student, Class
-from faculty.models import Notice, Resource
-from .forms import StudentProfileForm, ChangePasswordForm
+from django.views import View
+from .models import Student, Attendance, Fee, Subject
+from .forms import StudentProfileForm
 from django.db.models import Sum, Avg
+from datetime import datetime
 
-def is_admin_or_faculty(user):
-    return user.is_superuser or hasattr(user, 'faculty')
 
-@login_required
-@user_passes_test(is_admin_or_faculty, login_url='student_profile')
-def student_list(request):
-    classes = Class.objects.all()
-    selected_class = request.GET.get('class_id')
-    students = Student.objects.all().select_related('user')
-    if selected_class:
-        students = students.filter(class_group_id=selected_class)
-    return render(request, 'students/student_list.html', {'students': students, 'classes': classes})
+def role_selection(request):
+    return render(request, 'students/role_selection.html')
 
-@login_required
-def student_profile(request):
-    if request.user.is_superuser or not hasattr(request.user, 'student'):
-        return redirect('role_selection')
-    student = request.user.student
-    if request.method == 'POST':
-        student.phone = request.POST.get('phone', student.phone)
-        student.address = request.POST.get('address', student.address)
-        student.save()
-        messages.success(request, 'Profile updated successfully!')
-        return redirect('student_profile')
-    
-    # Precompute attendance summary
-    total_attendances = student.attendances.count()
-    present_count = student.attendances.filter(is_present=True).count()
-    attendance_percentage = (present_count / total_attendances * 100 if total_attendances > 0 else 0)
-    
-    # Precompute fee summary
-    total_due = student.fees.filter(paid=False).aggregate(total=Sum('amount'))['total'] or 0.00
-    
-    # Precompute average marks
-    average_marks = student.subjects.aggregate(avg=Avg('marks'))['avg'] or 0.00
-    
-    # Fetch notices and resources
-    notices = Notice.objects.all().order_by('-posted_at')[:5].select_related('posted_by')
-    resources = Resource.objects.filter(class_group=student.class_group).order_by('-uploaded_at')[:5].select_related('uploaded_by')
-
-    return render(request, 'students/student_profile.html', {
-        'student': student,
-        'total_attendances': total_attendances,
-        'present_count': present_count,
-        'attendance_percentage': attendance_percentage,
-        'total_due': total_due,
-        'average_marks': average_marks,
-        'notices': notices,
-        'resources': resources,
-    })
-
-@login_required
-def edit_student_profile(request):
-    student = request.user.student
-    if request.method == 'POST':
-        form = StudentProfileForm(request.POST, request.FILES, instance=student)
-        if form.is_valid():
-            form.save()
-            messages.success(request, 'Profile updated successfully!')
-            return redirect('student_profile')
-    else:
-        form = StudentProfileForm(instance=student)
-    return render(request, 'students/edit_student_profile.html', {'form': form})
-
-@login_required
-def student_dashboard(request):
-    if request.user.is_superuser or not hasattr(request.user, 'student'):
-        return redirect('role_selection')
-
-    student = request.user.student
-
-    if not student.changed_password:
-        if request.method == 'POST':
-            form = ChangePasswordForm(request.POST)
-            if form.is_valid():
-                current_password = form.cleaned_data['current_password']
-                new_password = form.cleaned_data['new_password']
-
-                if request.user.check_password(current_password):
-                    request.user.set_password(new_password)
-                    request.user.save()
-
-                    student.changed_password = True
-                    student.save()
-
-                    user = authenticate(request, username=request.user.username, password=new_password)
-                    if user is not None:
-                        login(request, user)
-                        update_session_auth_hash(request, user) 
-                        messages.success(request, 'Password changed successfully.')
-                        return redirect('student_dashboard')
-                    else:
-                        messages.error(request, 'Authentication failed after password change.')
-                else:
-                    messages.error(request, 'Current password is incorrect.')
+def home(request):
+    if request.user.is_authenticated:
+        if hasattr(request.user, 'student'):
+            return redirect('students:student_dashboard')
+        elif hasattr(request.user, 'faculty'):
+            return redirect('faculty:faculty_dashboard')
         else:
-            form = ChangePasswordForm()
-        return render(request, 'students/change_password.html', {'form': form})
+            return redirect('role_selection')
+    return render(request, 'students/home.html', {'message': 'Please log in.'})
 
-    notices = Notice.objects.all().order_by('-posted_at')[:5].select_related('posted_by')
-    resources = Resource.objects.filter(class_group=student.class_group).order_by('-uploaded_at')[:5].select_related('uploaded_by')
+def custom_logout(request):
+    logout(request)
+    return redirect('home')
 
-    return render(request, 'students/student_dashboard.html', {
-        'student': student,
-        'notices': notices,
-        'resources': resources,
-    })
+def accounts_profile_redirect(request):
+    if hasattr(request.user, 'student'):
+        return redirect('students:student_profile')
+    elif hasattr(request.user, 'faculty'):
+        return redirect('faculty:faculty_profile')
+    return redirect('role_selection')
 
-def student_login_view(request):
-    if request.method == 'POST':
+class StudentLoginView(View):
+    def get(self, request):
+        return render(request, 'students/student_login.html')
+    
+    def post(self, request):
         username = request.POST['username']
         password = request.POST['password']
         user = authenticate(request, username=username, password=password)
@@ -124,14 +45,154 @@ def student_login_view(request):
             login(request, user)
             student = user.student
             if not student.changed_password:
-                return redirect('student_dashboard')  
-            return redirect('student_dashboard')
+                return redirect('students:student_dashboard')
+            return redirect('students:student_dashboard')  
         else:
             messages.error(request, 'Invalid credentials or not a student.')
-    return render(request, 'students/student_login.html')
+            return render(request, 'students/student_login.html')
+
+class FacultyLoginView(View):
+    def get(self, request):
+        return render(request, 'faculty/faculty_login.html')
+    
+    def post(self, request):
+        username = request.POST['username']
+        password = request.POST['password']
+        user = authenticate(request, username=username, password=password)
+        if user is not None and hasattr(user, 'faculty'):
+            login(request, user)
+            return redirect('faculty:faculty_dashboard')
+        else:
+            messages.error(request, 'Invalid credentials or not a faculty.')
+            return render(request, 'faculty/faculty_login.html')
+
+@login_required
+def student_profile(request):
+    if not hasattr(request.user, 'student'):
+        return redirect('role_selection')
+    student = request.user.student
+    if request.method == 'POST':
+        student.phone = request.POST.get('phone', student.phone)
+        student.address = request.POST.get('address', student.address)
+        student.gender = request.POST.get('gender', student.gender)
+        student.father_name = request.POST.get('father_name', student.father_name)
+        student.mother_name = request.POST.get('mother_name', student.mother_name)
+        student.parent_phone = request.POST.get('parent_phone', student.parent_phone)
+        student.community = request.POST.get('community', student.community)
+        student.place_of_birth = request.POST.get('place_of_birth', student.place_of_birth)
+        student.admission_date = request.POST.get('admission_date', student.admission_date)
+        student.admission_type = request.POST.get('admission_type', student.admission_type)
+        student.save()
+        messages.success(request, 'Profile updated successfully!')
+        return redirect('students:student_profile')
+    total_due = student.fees.filter(paid=False).aggregate(total=Sum('amount'))['total'] or 0.00
+    return render(request, 'students/student_profile.html', {'student': student, 'total_due': total_due})
+
+@login_required
+def student_dashboard(request):
+    if not hasattr(request.user, 'student'):
+        return redirect('role_selection')
+    student = request.user.student
+    total_due = student.fees.filter(paid=False).aggregate(total=Sum('amount'))['total'] or 0.00
+    attendance_percentage = student.attendances.filter(is_present=True).count() / student.attendances.count() * 100 if student.attendances.count() > 0 else 0
+    average_marks = student.subjects.aggregate(avg=Avg('marks'))['avg'] or 0.00
+    return render(request, 'students/student_dashboard.html', {
+        'student': student,
+        'total_due': total_due,
+        'attendance_percentage': attendance_percentage,
+        'average_marks': average_marks,
+    })
+
+@login_required
+def edit_student_profile(request):
+    if not hasattr(request.user, 'student'):
+        return redirect('role_selection')
+    student = request.user.student
+    if request.method == 'POST':
+        form = StudentProfileForm(request.POST, request.FILES, instance=student)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Profile updated successfully!')
+            return redirect('students:student_profile')
+    else:
+        form = StudentProfileForm(instance=student)
+    total_due = student.fees.filter(paid=False).aggregate(total=Sum('amount'))['total'] or 0.00
+    return render(request, 'students/edit_student_profile.html', {'form': form, 'total_due': total_due})
 
 @login_required
 def notice_calendar(request):
-    if request.user.is_superuser or not hasattr(request.user, 'student'):
+    if not hasattr(request.user, 'student'):
         return redirect('role_selection')
-    return render(request, 'students/notice_calendar.html')
+    student = request.user.student
+    total_due = student.fees.filter(paid=False).aggregate(total=Sum('amount'))['total'] or 0.00
+    return render(request, 'students/notice_calendar.html', {'total_due': total_due})
+
+@login_required
+def master(request):
+    if not hasattr(request.user, 'student'):
+        return redirect('role_selection')
+    student = request.user.student
+    total_due = student.fees.filter(paid=False).aggregate(total=Sum('amount'))['total'] or 0.00
+    return render(request, 'students/master.html', {'student': student, 'total_due': total_due})
+
+@login_required
+def admission(request):
+    if not hasattr(request.user, 'student'):
+        return redirect('role_selection')
+    student = request.user.student
+    total_due = student.fees.filter(paid=False).aggregate(total=Sum('amount'))['total'] or 0.00
+    return render(request, 'students/admission.html', {'student': student, 'total_due': total_due})
+
+@login_required
+def academic(request):
+    if not hasattr(request.user, 'student'):
+        return redirect('role_selection')
+    student = request.user.student
+    total_due = student.fees.filter(paid=False).aggregate(total=Sum('amount'))['total'] or 0.00
+    attendance_data = student.attendances.all()
+    return render(request, 'students/academic.html', {'student': student, 'total_due': total_due, 'attendance_data': attendance_data})
+
+@login_required
+def feedback(request):
+    if not hasattr(request.user, 'student'):
+        return redirect('role_selection')
+    student = request.user.student
+    total_due = student.fees.filter(paid=False).aggregate(total=Sum('amount'))['total'] or 0.00
+    if request.method == 'POST':
+        feedback_text = request.POST.get('feedback')
+        messages.success(request, f'Feedback submitted: {feedback_text}')
+        return redirect('students:feedback')
+    return render(request, 'students/feedback.html', {'student': student, 'total_due': total_due})
+
+@login_required
+def exam(request):
+    if not hasattr(request.user, 'student'):
+        return redirect('role_selection')
+    student = request.user.student
+    total_due = student.fees.filter(paid=False).aggregate(total=Sum('amount'))['total'] or 0.00
+    return render(request, 'students/exam.html', {'student': student, 'total_due': total_due})
+
+@login_required
+def fee(request):
+    if not hasattr(request.user, 'student'):
+        return redirect('role_selection')
+    student = request.user.student
+    total_due = student.fees.filter(paid=False).aggregate(total=Sum('amount'))['total'] or 0.00
+    fee_data = student.fees.all()
+    return render(request, 'students/fee.html', {'student': student, 'total_due': total_due, 'fee_data': fee_data})
+
+@login_required
+def transport(request):
+    if not hasattr(request.user, 'student'):
+        return redirect('role_selection')
+    student = request.user.student
+    total_due = student.fees.filter(paid=False).aggregate(total=Sum('amount'))['total'] or 0.00
+    return render(request, 'students/transport.html', {'student': student, 'total_due': total_due})
+
+@login_required
+def placement(request):
+    if not hasattr(request.user, 'student'):
+        return redirect('role_selection')
+    student = request.user.student
+    total_due = student.fees.filter(paid=False).aggregate(total=Sum('amount'))['total'] or 0.00
+    return render(request, 'students/placement.html', {'student': student, 'total_due': total_due})

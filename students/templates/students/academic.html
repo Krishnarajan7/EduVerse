@@ -1,0 +1,31 @@
+{% extends 'base.html' %}
+
+{% block title %}Academic{% endblock %}
+
+{% block content %}
+    <div class="text-center mt-5">
+        <h1>Academic Section</h1>
+        <p class="lead">Welcome, {{ student.name }}! Track your academic progress.</p>
+        {% if attendance_data %}
+            <h5>Attendance Records</h5>
+            <table class="table table-striped w-75 mx-auto">
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for attendance in attendance_data %}
+                        <tr>
+                            <td>{{ attendance.date }}</td>
+                            <td>{{ attendance.is_present|yesno:"Present,Absent" }}</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        {% else %}
+            <p>No attendance records available.</p>
+        {% endif %}
+    </div>
+{% endblock %}

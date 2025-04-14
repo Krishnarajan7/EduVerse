@@ -4,45 +4,15 @@
 
 {% block content %}
     <div class="text-center mt-5">
-        <h1>Welcome, {{ student.name }} (Roll: {{ student.roll_number }})</h1>
-        <p>Class: {{ student.class_group }}</p>
-    </div>
-
-    <div class="row mt-4">
-        <div class="col-md-6">
-            <h3>Notices</h3>
-            {% for notice in notices %}
-                <div class="card mb-3">
-                    <div class="card-header">
-                        {{ notice.title }}
-                    </div>
-                    <div class="card-body">
-                        <p class="card-text">{{ notice.content|truncatewords:20 }}</p>
-                        <p class="text-muted">Posted by: {{ notice.posted_by.name }} on {{ notice.posted_at|date:"F d, Y" }}</p>
-                    </div>
-                </div>
-            {% empty %}
-                <p>No notices available.</p>
-            {% endfor %}
-        </div>
-
-        <div class="col-md-6">
-            <h3>Resources for Your Class</h3>
-            {% for resource in resources %}
-                <div class="card mb-3">
-                    <div class="card-header">
-                        {{ resource.title }}
-                    </div>
-                    <div class="card-body">
-                        <p class="card-text"><a href="{{ resource.file.url }}" download="{{ resource.title }}">Download</a> (Uploaded on {{ resource.uploaded_at|date:"F d, Y" }})</p>
-                        {% if resource.uploaded_by %}
-                            <p class="text-muted">Uploaded by: {{ resource.uploaded_by.name }}</p>
-                        {% endif %}
-                    </div>
-                </div>
-            {% empty %}
-                <p>No resources available.</p>
-            {% endfor %}
+        <h1>Welcome to EduVerse</h1>
+        <p class="lead">Hello, {{ student.name }} (Roll: {{ student.roll_number }})!</p>
+        <div class="card w-75 mx-auto mt-4">
+            <div class="card-body">
+                <h5 class="card-title">Your Overview</h5>
+                <p><strong>Attendance Percentage:</strong> {{ attendance_percentage|floatformat:2 }}%</p>
+                <p><strong>Balance Due:</strong> ₹{{ total_due|floatformat:2 }}</p>
+                <p><strong>Average Marks:</strong> {{ average_marks|floatformat:2 }}</p>
+            </div>
         </div>
     </div>
 {% endblock %}

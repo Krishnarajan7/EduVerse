@@ -9,7 +9,7 @@ from django.contrib import messages
 def role_selection(request):
     if request.user.is_authenticated and not request.user.is_superuser:
         if hasattr(request.user, 'student'):
-            return redirect('student_dashboard')
+            return redirect('students:student_dashboard')
         elif hasattr(request.user, 'faculty'):
             return redirect('faculty_dashboard')
     return render(request, 'role_selection.html')

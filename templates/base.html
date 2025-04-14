@@ -15,35 +15,54 @@
                 <span class="navbar-toggler-icon"></span>
             </button>
             <div class="collapse navbar-collapse" id="navbarNav">
+                {% if request.user.is_authenticated %}
                 <ul class="navbar-nav">
                     <li class="nav-item"><a class="nav-link" href="{% url 'home' %}">Home</a></li>
-                    {% if request.user.is_authenticated %}
-                        {% if request.user.is_superuser %}
-                            <li class="nav-item"><a class="nav-link" href="{% url 'student_list' %}">Students</a></li>
-                            <li class="nav-item"><a class="nav-link" href="{% url 'faculty_list' %}">Faculty</a></li> <!-- Assuming a faculty_list view -->
-                        {% elif request.user.student %}
-                            <li class="nav-item"><a class="nav-link" href="{% url 'student_profile' %}">My Profile</a></li>
-                            <li class="nav-item"><a class="nav-link" href="{% url 'student_dashboard' %}">Dashboard</a></li>
-                            <li class="nav-item"><a class="nav-link" href="{% url 'notice_calendar' %}">Notice Calendar</a></li>
-                        {% elif request.user.faculty %}
-                            <li class="nav-item"><a class="nav-link" href="{% url 'faculty_dashboard' %}">Dashboard</a></li> <!-- Assuming a faculty_dashboard view -->
-                            <li class="nav-item"><a class="nav-link" href="{% url 'notices' %}">Notices</a></li> <!-- Assuming a notices view -->
+
+                    {% if request.user.is_superuser %}
+                        <li class="nav-item"><a class="nav-link" href="{% url 'student_list' %}">Students</a></li>
+                        <li class="nav-item"><a class="nav-link" href="{% url 'faculty_list' %}">Faculty</a></li>
+
+                    {% elif request.user.student %}
+                        <li class="nav-item"><a class="nav-link" href="{% url 'students:master' %}">Master</a></li>
+                        <li class="nav-item"><a class="nav-link" href="{% url 'students:admission' %}">Admission</a></li>
+                        <li class="nav-item"><a class="nav-link" href="{% url 'students:academic' %}">Academic</a></li>
+                        <li class="nav-item"><a class="nav-link" href="{% url 'students:student_dashboard' %}">Dashboard</a></li>
+                        <li class="nav-item"><a class="nav-link" href="{% url 'students:feedback' %}">Feedback</a></li>
+                        <li class="nav-item"><a class="nav-link" href="{% url 'students:exam' %}">Exam</a></li>
+                        <li class="nav-item"><a class="nav-link" href="{% url 'students:fee' %}">Fee</a></li>
+                        <li class="nav-item"><a class="nav-link" href="{% url 'students:transport' %}">Transport</a></li>
+                        <li class="nav-item"><a class="nav-link" href="{% url 'students:placement' %}">Placement</a></li>
+                        <li class="nav-item"><a class="nav-link" href="{% url 'students:student_profile' %}">Profile</a></li>
+
+                        {% if total_due is not None %}
+                            <li class="nav-item">
+                                <a class="nav-link" href="#">Balance: ₹{{ total_due|floatformat:2 }}</a>
+                            </li>
                         {% endif %}
+
+                    {% elif request.user.faculty %}
+                        <li class="nav-item"><a class="nav-link" href="{% url 'faculty:faculty_dashboard' %}">Dashboard</a></li>
+                        <li class="nav-item"><a class="nav-link" href="{% url 'faculty:notices' %}">Notices</a></li>
                     {% endif %}
                 </ul>
+                {% endif %}
+
                 <ul class="navbar-nav ms-auto">
                     {% if request.user.is_authenticated %}
                         <li class="nav-item"><a class="nav-link" href="{% url 'logout' %}">Logout ({{ request.user.username }})</a></li>
                     {% else %}
-                        <li class="nav-item"><a class="nav-link" href="{% url 'student_login' %}">Login</a></li>
+                        <li class="nav-item"><a class="nav-link" href="{% url 'students:student_login' %}">Login</a></li>
                     {% endif %}
                 </ul>
             </div>
         </div>
     </nav>
+
     <div class="container mt-4">
         {% block content %}{% endblock %}
     </div>
+
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

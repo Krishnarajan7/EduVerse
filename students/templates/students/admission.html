@@ -1,0 +1,12 @@
+{% extends 'base.html' %}
+
+{% block title %}Admission{% endblock %}
+
+{% block content %}
+    <div class="text-center mt-5">
+        <h1>Admission Section</h1>
+        <p class="lead">Welcome, {{ student.name }}! View your admission details here.</p>
+        <p>Admission Date: {{ student.admission_date|date:"d/m/Y"|default:"Not available" }}</p>
+        <p>Admission Type: {{ student.admission_type|default:"Not available" }}</p>
+    </div>
+{% endblock %}

@@ -30,13 +30,13 @@ class Student(models.Model):
     total_classes = models.PositiveIntegerField(default=0)
     changed_password = models.BooleanField(default=False)
     gender = models.CharField(max_length=10, choices=[('Male', 'Male'), ('Female', 'Female')], blank=True, null=True)
-    # father_name = models.CharField(max_length=100, blank=True, null=True)
-    # mother_name = models.CharField(max_length=100, blank=True, null=True)
-    # parent_phone = models.CharField(max_length=15, blank=True, null=True)
-    # community = models.CharField(max_length=50, blank=True, null=True)
-    # place_of_birth = models.CharField(max_length=100, blank=True, null=True)
-    # admission_date = models.DateField(blank=True, null=True)
-    # admission_type = models.CharField(max_length=50, choices=[('Regular', 'Regular'), ('Special', 'Special')], blank=True, null=True)
+    father_name = models.CharField(max_length=100, blank=True, null=True)
+    mother_name = models.CharField(max_length=100, blank=True, null=True)
+    parent_phone = models.CharField(max_length=15, blank=True, null=True)
+    community = models.CharField(max_length=50, blank=True, null=True)
+    place_of_birth = models.CharField(max_length=100, blank=True, null=True)
+    admission_date = models.DateField(blank=True, null=True)
+    admission_type = models.CharField(max_length=50, choices=[('Regular', 'Regular'), ('Special', 'Special')], blank=True, null=True)
 
     def __str__(self):
         return f"{self.name} ({self.roll_number})"
