@@ -3,11 +3,10 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth import login, authenticate, logout
 from django.contrib import messages
 from django.views import View
-from .models import Student, Attendance, Fee, Subject
+from .models import Student, Attendance, Fee
 from .forms import StudentProfileForm
 from django.db.models import Sum, Avg
 from datetime import datetime
-
 
 def role_selection(request):
     return render(request, 'students/role_selection.html')
@@ -45,8 +44,8 @@ class StudentLoginView(View):
             login(request, user)
             student = user.student
             if not student.changed_password:
-                return redirect('students:student_dashboard')
-            return redirect('students:student_dashboard')  
+                return redirect('students:student_dashboard')  # Ensure namespace
+            return redirect('students:student_dashboard')  # Ensure namespace
         else:
             messages.error(request, 'Invalid credentials or not a student.')
             return render(request, 'students/student_login.html')
@@ -72,21 +71,20 @@ def student_profile(request):
         return redirect('role_selection')
     student = request.user.student
     if request.method == 'POST':
-        student.phone = request.POST.get('phone', student.phone)
-        student.address = request.POST.get('address', student.address)
-        student.gender = request.POST.get('gender', student.gender)
-        student.father_name = request.POST.get('father_name', student.father_name)
-        student.mother_name = request.POST.get('mother_name', student.mother_name)
-        student.parent_phone = request.POST.get('parent_phone', student.parent_phone)
-        student.community = request.POST.get('community', student.community)
-        student.place_of_birth = request.POST.get('place_of_birth', student.place_of_birth)
-        student.admission_date = request.POST.get('admission_date', student.admission_date)
-        student.admission_type = request.POST.get('admission_type', student.admission_type)
-        student.save()
-        messages.success(request, 'Profile updated successfully!')
-        return redirect('students:student_profile')
+        form = StudentProfileForm(request.POST, request.FILES, instance=student)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Profile updated successfully!')
+            return redirect('students:student_profile')
+    else:
+        form = StudentProfileForm(instance=student)
     total_due = student.fees.filter(paid=False).aggregate(total=Sum('amount'))['total'] or 0.00
-    return render(request, 'students/student_profile.html', {'student': student, 'total_due': total_due})
+    return render(request, 'students/student_profile.html', {
+        'student': student,
+        'form': form,
+        'total_due': total_due,
+        'attendance_percentage': student.attendance_percentage,
+    })
 
 @login_required
 def student_dashboard(request):
@@ -94,7 +92,7 @@ def student_dashboard(request):
         return redirect('role_selection')
     student = request.user.student
     total_due = student.fees.filter(paid=False).aggregate(total=Sum('amount'))['total'] or 0.00
-    attendance_percentage = student.attendances.filter(is_present=True).count() / student.attendances.count() * 100 if student.attendances.count() > 0 else 0
+    attendance_percentage = student.attendance_percentage
     average_marks = student.subjects.aggregate(avg=Avg('marks'))['avg'] or 0.00
     return render(request, 'students/student_dashboard.html', {
         'student': student,

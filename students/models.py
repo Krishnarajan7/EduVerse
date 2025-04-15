@@ -43,10 +43,14 @@ class Student(models.Model):
 
     @property
     def attendance_percentage(self):
-        if self.total_classes == 0:
+        total_classes = self.attendances.count()  
+        if total_classes == 0:
             return 0
-        return (self.classes_attended / self.total_classes) * 100
+        classes_attended = self.attendances.filter(is_present=True).count()
+        return (classes_attended / total_classes) * 100
 
+    def __str__(self):
+        return f"{self.name} ({self.roll_number})"
 class Subject(models.Model):
     student = models.ForeignKey(Student, on_delete=models.CASCADE, related_name='subjects')
     name = models.CharField(max_length=100)
@@ -77,3 +81,9 @@ class Fee(models.Model):
     def __str__(self):
         status = 'Paid' if self.paid else 'Unpaid'
         return f"{self.student.name} - ₹{self.amount} - {status}"
+    
+    
+class Feedback(models.Model):
+    student = models.ForeignKey(Student, on_delete=models.CASCADE)
+    message = models.TextField()
+    submitted_at = models.DateTimeField(auto_now_add=True)

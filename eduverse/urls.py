@@ -1,5 +1,5 @@
 from django.contrib import admin
-from django.urls import path, include
+from django.urls import path, include, reverse_lazy
 from django.shortcuts import render, redirect
 from django.contrib.auth import views as auth_views, logout
 from django.conf import settings
@@ -11,7 +11,7 @@ def role_selection(request):
         if hasattr(request.user, 'student'):
             return redirect('students:student_dashboard')
         elif hasattr(request.user, 'faculty'):
-            return redirect('faculty_dashboard')
+            return redirect('faculty:faculty_dashboard')
     return render(request, 'role_selection.html')
 
 def home(request):
@@ -33,9 +33,9 @@ def accounts_profile_redirect(request):
         if request.user.is_superuser:
             return redirect('admin:index')
         elif hasattr(request.user, 'student'):
-            return redirect('student_dashboard')
+            return redirect('students:student_profile')  
         elif hasattr(request.user, 'faculty'):
-            return redirect('faculty_dashboard')
+            return redirect('faculty:faculty_profile') 
     return redirect('role_selection')
 
 class StudentLoginView(auth_views.LoginView):
@@ -43,16 +43,14 @@ class StudentLoginView(auth_views.LoginView):
     redirect_authenticated_user = True
 
     def get_success_url(self):
-        return reverse_lazy('student_dashboard')  
+        return reverse_lazy('students:student_dashboard')  
 
 class FacultyLoginView(auth_views.LoginView):
     template_name = 'faculty/faculty_login.html'
     redirect_authenticated_user = True
 
     def get_success_url(self):
-        return reverse_lazy('faculty_dashboard')  
-
-from django.urls import reverse_lazy 
+        return reverse_lazy('faculty:faculty_dashboard') 
 
 urlpatterns = [
     path('', role_selection, name='role_selection'),
