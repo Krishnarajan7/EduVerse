@@ -1,0 +1,31 @@
+{% extends 'base.html' %}
+
+{% block title %}Exam Timetable - EduVerse{% endblock %}
+
+{% block content %}
+    <div class="container mt-4">
+        <h2>Exam Timetable</h2>
+        {% if exam_timetable %}
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Subject</th>
+                        <th>Time</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for entry in exam_timetable %}
+                        <tr>
+                            <td>{{ entry.date|date:"F d, Y" }}</td>
+                            <td>{{ entry.subject }}</td>
+                            <td>{{ entry.time }}</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        {% else %}
+            <p class="text-muted">No exam timetable available.</p>
+        {% endif %}
+    </div>
+{% endblock %}

@@ -1,5 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import User
+from django.utils import timezone
 
 class Class(models.Model):
     YEAR_CHOICES = [
@@ -88,3 +89,38 @@ class Feedback(models.Model):
     student = models.ForeignKey(Student, on_delete=models.CASCADE)
     message = models.TextField()
     submitted_at = models.DateTimeField(auto_now_add=True)
+    
+    
+class Circular(models.Model):
+    title = models.CharField(max_length=200)
+    description = models.TextField()
+    date = models.DateField(default=timezone.now)
+    created_by = models.ForeignKey(User, on_delete=models.CASCADE)
+
+    def __str__(self):
+        return self.title
+
+class ExamTimetable(models.Model):
+    date = models.DateField()
+    subject = models.CharField(max_length=100)
+    time = models.CharField(max_length=50)
+
+    def __str__(self):
+        return f"{self.subject} - {self.date}"
+
+class ClassTimetable(models.Model):
+    day = models.CharField(max_length=50)
+    time = models.CharField(max_length=50)
+    subject = models.CharField(max_length=100)
+    room = models.CharField(max_length=50)
+
+    def __str__(self):
+        return f"{self.day} - {self.subject}"
+    
+class Attendance(models.Model):
+    student = models.ForeignKey(Student, on_delete=models.CASCADE, related_name='attendances')
+    date = models.DateField(default=timezone.now)
+    is_present = models.BooleanField(default=True)
+
+    def __str__(self):
+        return f"{self.student.name} - {self.date} - {'Present' if self.is_present else 'Absent'}"

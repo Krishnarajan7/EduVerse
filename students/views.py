@@ -3,7 +3,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth import login, authenticate, logout
 from django.contrib import messages
 from django.views import View
-from .models import Student, Attendance, Fee
+from .models import Student, Attendance, Fee, Subject, Circular, ExamTimetable, ClassTimetable
 from .forms import StudentProfileForm
 from django.db.models import Sum, Avg
 from datetime import datetime
@@ -94,16 +94,31 @@ def student_dashboard(request):
     if not hasattr(request.user, 'student'):
         return redirect('role_selection')
     student = request.user.student
+    total_due = student.fees.filter(paid=False).aggregate(Sum('amount'))['amount__sum'] or 0
+    unpaid_fee = student.fees.filter(paid=False).first()
     total_due = student.fees.filter(paid=False).aggregate(total=Sum('amount'))['total'] or 0.00
     attendance_percentage = student.attendance_percentage
     average_marks = student.subjects.aggregate(avg=Avg('marks'))['avg'] or 0.00
+    circulars = Circular.objects.all()[:5]
+    
+    can_edit_students = request.user.is_superuser or request.user.has_perm("students.change_student")
+
     return render(request, 'students/student_dashboard.html', {
         'student': student,
+        'unpaid_fee': unpaid_fee,
         'total_due': total_due,
         'attendance_percentage': attendance_percentage,
         'average_marks': average_marks,
         'request': request,  
+        'can_change_student': request.user.has_perm("students.change_student"),
+        'circulars': circulars,
+        'can_edit_students' : can_edit_students,
     })
+
+    
+@login_required
+def academic(request):
+    return redirect('students:student_dashboard')
 
 @login_required
 def edit_student_profile(request):
@@ -198,3 +213,42 @@ def placement(request):
     student = request.user.student
     total_due = student.fees.filter(paid=False).aggregate(total=Sum('amount'))['total'] or 0.00
     return render(request, 'students/placement.html', {'student': student, 'total_due': total_due})
+
+
+@login_required
+def circular(request):
+    if not hasattr(request.user, 'student'):
+        return redirect('role_selection')
+    circulars = Circular.objects.all()[:5]  # Example: last 5 circulars
+    return render(request, 'students/circular.html', {
+        'circulars': circulars,
+    })
+
+@login_required
+def exam_timetable(request):
+    if not hasattr(request.user, 'student'):
+        return redirect('role_selection')
+    exam_timetable = ExamTimetable.objects.all()  # Replace with actual query
+    return render(request, 'students/exam_timetable.html', {
+        'exam_timetable': exam_timetable,
+    })
+
+@login_required
+def class_timetable(request):
+    if not hasattr(request.user, 'student'):
+        return redirect('role_selection')
+    class_timetable = ClassTimetable.objects.all()  # Replace with actual query
+    return render(request, 'students/class_timetable.html', {
+        'class_timetable': class_timetable,
+    })
+    
+@login_required
+def attendance(request):
+    if not hasattr(request.user, 'student'):
+        return redirect('role_selection')
+    student = request.user.student
+    attendance_percentage = student.attendance_percentage
+    return render(request, 'students/attendance.html', {
+        'student': student,
+        'attendance_percentage': attendance_percentage,
+    })

@@ -1,0 +1,18 @@
+{% extends 'base.html' %}
+
+{% block title %}Attendance - EduVerse{% endblock %}
+
+{% block content %}
+    <div class="container mt-4">
+        <h2>Attendance Details</h2>
+        <div class="progress mb-2">
+            <div class="progress-bar bg-success" role="progressbar" style="width: {{ attendance_percentage }}%;" aria-valuenow="{{ attendance_percentage }}" aria-valuemin="0" aria-valuemax="100">{{ attendance_percentage|floatformat:2 }}%</div>
+        </div>
+        <h5>Last 5 Records</h5>
+        <ul class="list-group">
+            {% for attendance in student.attendances.all|slice:":5" %}
+                <li class="list-group-item">{{ attendance.date|date:"F d, Y" }} - {{ attendance.is_present|yesno:"Present,Absent" }}</li>
+            {% endfor %}
+        </ul>
+    </div>
+{% endblock %}

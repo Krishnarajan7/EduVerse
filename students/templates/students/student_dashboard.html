@@ -1,20 +1,307 @@
 {% extends 'base.html' %}
 
-{% block title %}Student Dashboard{% endblock %}
+{% block title %}Student Dashboard - EduVerse{% endblock %}
 
 {% block content %}
-<div class="text-center mt-5">
-    <h1>Welcome to EduVerse</h1>
-    <p class="lead">Hello, {{ student.name }} (Roll: {{ student.roll_number }})!</p>
-    <div class="card w-75 mx-auto mt-4">
-        <div class="card-body">
-            <h5 class="card-title">Your Overview</h5>
-            <p><strong>Attendance Percentage:</strong> {{ attendance_percentage|floatformat:2 }}%</p>
-            <p><strong>Balance Due:</strong> ₹{{ total_due|floatformat:2 }}</p>
-            {% if request.user.is_superuser or perms.students.change_student %}
-            <p><strong>Average Marks:</strong> {{ average_marks|floatformat:2 }}</p>
+<div class="container-fluid">
+    <div class="row">
+        <!-- Sidebar -->
+        <nav class="col-md-2 d-none d-md-block bg-secondary sidebar">
+            <div class="sidebar-sticky pt-3">
+                <h5 class="text-white p-2">Quick Links</h5>
+                <ul class="nav flex-column">
+                    <li class="nav-item">
+                        <a class="nav-link text-white" href="{% url 'students:student_dashboard' %}">Dashboard</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link text-white" href="{% url 'students:student_profile' %}">Profile</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link text-white" href="{% url 'students:academic' %}">Academic</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link text-white" href="{% url 'students:fee' %}">Fee</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link text-white" href="{% url 'logout' %}">Logout</a>
+                    </li>
+                </ul>
+            </div>
+        </nav>
+
+        <!-- Main Content -->
+        <main role="main" class="col-md-10 ml-sm-auto col-lg-10 px-4">
+            <div
+                class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+                <h1 class="h2 text-primary">Welcome to EduVerse</h1>
+                <div class="btn-group">
+                    <button type="button" class="btn btn-outline-secondary">Notifications</button>
+                    <button type="button" class="btn btn-outline-secondary">Settings</button>
+                </div>
+            </div>
+
+            <!-- Student Overview -->
+            <div class="row mb-4">
+                <div class="col-md-4">
+                    <div class="card text-white bg-primary mb-3">
+                        <div class="card-header">Student Overview</div>
+                        <div class="card-body">
+                            <h5 class="card-title">Hello, {{ student.name }} (Roll: {{ student.roll_number }})</h5>
+                            <p class="card-text">Admission Date: {{ student.admission_date|date:"F d, Y" }}</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card text-white bg-success mb-3">
+                        <div class="card-header">Attendance</div>
+                        <div class="card-body">
+                            <h5 class="card-title">{{ attendance_percentage|floatformat:2 }}%</h5>
+                            <p class="card-text">Last Updated: {{ student.attendances.last.date|date:"F d, Y" }}</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card text-white bg-warning mb-3">
+                        <div class="card-header">Fee Status</div>
+                        <div class="card-body">
+                            <h5 class="card-title">₹{{ total_due|floatformat:2 }}</h5>
+                            {% if total_due > 0 %}
+                            {% if unpaid_fee %}
+                            <p class="text-danger">Due Date: {{ unpaid_fee.due_date|date:"F d, Y" }} - Pay Soon!</p>
+                            {% endif %}
+
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Academic Section with Tabs -->
+            <div class="card mb-4">
+                <div class="card-header bg-info text-white">
+                    <h4>Academic Details</h4>
+                </div>
+                <div class="card-body">
+                    <ul class="nav nav-tabs" id="academicTabs" role="tablist">
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link active" id="attendance-tab" data-bs-toggle="tab"
+                                data-bs-target="#attendance" type="button" role="tab">Attendance</button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link" id="circular-tab" data-bs-toggle="tab" data-bs-target="#circular"
+                                type="button" role="tab">Circular</button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link" id="exam-timetable-tab" data-bs-toggle="tab"
+                                data-bs-target="#exam-timetable" type="button" role="tab">Exam Timetable</button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link" id="class-timetable-tab" data-bs-toggle="tab"
+                                data-bs-target="#class-timetable" type="button" role="tab">Class Timetable</button>
+                        </li>
+                    </ul>
+                    <div class="tab-content pt-3" id="academicTabContent">
+                        <!-- Attendance Tab -->
+                        <div class="tab-pane fade show active" id="attendance" role="tabpanel">
+                            <h5>Attendance Summary</h5>
+                            <div class="progress mb-2">
+                                <div class="progress-bar bg-success" role="progressbar"
+                                    style="width: {{ attendance_percentage }}%;"
+                                    aria-valuenow="{{ attendance_percentage }}" aria-valuemin="0" aria-valuemax="100">{{
+                                    attendance_percentage|floatformat:2 }}%</div>
+                            </div>
+                            <p>Last 5 Records:</p>
+                            <ul class="list-group">
+                                {% for attendance in student.attendances.all|slice:":5" %}
+                                <li class="list-group-item">{{ attendance.date|date:"F d, Y" }} - {{
+                                    attendance.is_present|yesno:"Present,Absent" }}</li>
+                                {% endfor %}
+                            </ul>
+                        </div>
+                        <!-- Circular Tab -->
+                        <div class="tab-pane fade" id="circular" role="tabpanel">
+                            <h5>Circulars</h5>
+                            {% if circulars %}
+                            <ul class="list-group">
+                                {% for circular in circulars %}
+                                <li class="list-group-item">
+                                    <strong>{{ circular.title }}</strong> - {{ circular.date|date:"F d, Y" }}
+                                    <p>{{ circular.description|truncatechars:100 }}</p>
+                                </li>
+                                {% endfor %}
+                            </ul>
+                            {% else %}
+                            <p class="text-muted">No circulars available.</p>
+                            {% endif %}
+                            <div class="mt-2">
+                                <button class="btn btn-primary" data-bs-toggle="modal"
+                                    data-bs-target="#circularModal">Add Circular</button>
+                            </div>
+                            <!-- Modal for Adding Circular -->
+                            <div class="modal fade" id="circularModal" tabindex="-1"
+                                aria-labelledby="circularModalLabel" aria-hidden="true">
+                                <div class="modal-dialog">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <h5 class="modal-title" id="circularModalLabel">Add New Circular</h5>
+                                            <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                                aria-label="Close"></button>
+                                        </div>
+                                        <div class="modal-body">
+                                            <form>
+                                                <div class="mb-3">
+                                                    <label for="circularTitle" class="form-label">Title</label>
+                                                    <input type="text" class="form-control" id="circularTitle">
+                                                </div>
+                                                <div class="mb-3">
+                                                    <label for="circularDescription"
+                                                        class="form-label">Description</label>
+                                                    <textarea class="form-control" id="circularDescription"
+                                                        rows="3"></textarea>
+                                                </div>
+                                                <button type="submit" class="btn btn-primary">Submit</button>
+                                            </form>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Exam Timetable Tab -->
+                        <div class="tab-pane fade" id="exam-timetable" role="tabpanel">
+                            <h5>Exam Timetable</h5>
+                            {% if exam_timetable %}
+                            <table class="table table-striped">
+                                <thead>
+                                    <tr>
+                                        <th>Date</th>
+                                        <th>Subject</th>
+                                        <th>Time</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for entry in exam_timetable %}
+                                    <tr>
+                                        <td>{{ entry.date|date:"F d, Y" }}</td>
+                                        <td>{{ entry.subject }}</td>
+                                        <td>{{ entry.time }}</td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                            {% else %}
+                            <p class="text-muted">No exam timetable available.</p>
+                            {% endif %}
+                        </div>
+                        <!-- Class Timetable Tab -->
+                        <div class="tab-pane fade" id="class-timetable" role="tabpanel">
+                            <h5>Class Timetable</h5>
+                            {% if class_timetable %}
+                            <table class="table table-striped">
+                                <thead>
+                                    <tr>
+                                        <th>Day</th>
+                                        <th>Time</th>
+                                        <th>Subject</th>
+                                        <th>Room</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for entry in class_timetable %}
+                                    <tr>
+                                        <td>{{ entry.day }}</td>
+                                        <td>{{ entry.time }}</td>
+                                        <td>{{ entry.subject }}</td>
+                                        <td>{{ entry.room }}</td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                            {% else %}
+                            <p class="text-muted">No class timetable available.</p>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Marks Summary (Faculty/Superuser Only) -->
+            {% if can_edit_students %}
+            <div class="card mb-4">
+                <div class="card-header bg-info text-white">
+                    Academic Performance
+                </div>
+                <div class="card-body">
+                    <h5>Average Marks: {{ average_marks|floatformat:2 }}</h5>
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Subject</th>
+                                <th>Marks</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for subject in student.subjects.all %}
+                            <tr>
+                                <td>{{ subject.name }}</td>
+                                <td>{{ subject.marks|floatformat:2 }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
             {% endif %}
-        </div>
+        </main>
     </div>
 </div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .sidebar {
+        min-height: 100vh;
+        position: fixed;
+        top: 0;
+        left: 0;
+        z-index: 1;
+        padding-top: 56px;
+        /* Adjust for navbar height */
+    }
+
+    .sidebar-sticky .nav-link {
+        color: #fff;
+    }
+
+    .sidebar-sticky .nav-link:hover {
+        background-color: #6c757d;
+    }
+
+    .card-header {
+        font-weight: bold;
+    }
+
+    .nav-tabs .nav-link {
+        color: #0d6efd;
+    }
+
+    .nav-tabs .nav-link.active {
+        background-color: #0d6efd;
+        color: white;
+    }
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        var triggerTabList = [].slice.call(document.querySelectorAll('#academicTabs button'))
+        triggerTabList.forEach(function (tab) {
+            tab.addEventListener('click', function (e) {
+                e.preventDefault()
+                var tabTrigger = new bootstrap.Tab(tab)
+                tabTrigger.show()
+            })
+        })
+    })
+</script>
 {% endblock %}
