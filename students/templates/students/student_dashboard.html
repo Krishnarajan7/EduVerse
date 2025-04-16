@@ -3,16 +3,18 @@
 {% block title %}Student Dashboard{% endblock %}
 
 {% block content %}
-    <div class="text-center mt-5">
-        <h1>Welcome to EduVerse</h1>
-        <p class="lead">Hello, {{ student.name }} (Roll: {{ student.roll_number }})!</p>
-        <div class="card w-75 mx-auto mt-4">
-            <div class="card-body">
-                <h5 class="card-title">Your Overview</h5>
-                <p><strong>Attendance Percentage:</strong> {{ attendance_percentage|floatformat:2 }}%</p>
-                <p><strong>Balance Due:</strong> ₹{{ total_due|floatformat:2 }}</p>
-                <p><strong>Average Marks:</strong> {{ average_marks|floatformat:2 }}</p>
-            </div>
+<div class="text-center mt-5">
+    <h1>Welcome to EduVerse</h1>
+    <p class="lead">Hello, {{ student.name }} (Roll: {{ student.roll_number }})!</p>
+    <div class="card w-75 mx-auto mt-4">
+        <div class="card-body">
+            <h5 class="card-title">Your Overview</h5>
+            <p><strong>Attendance Percentage:</strong> {{ attendance_percentage|floatformat:2 }}%</p>
+            <p><strong>Balance Due:</strong> ₹{{ total_due|floatformat:2 }}</p>
+            {% if request.user.is_superuser or perms.students.change_student %}
+            <p><strong>Average Marks:</strong> {{ average_marks|floatformat:2 }}</p>
+            {% endif %}
         </div>
     </div>
+</div>
 {% endblock %}

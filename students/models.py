@@ -51,6 +51,7 @@ class Student(models.Model):
 
     def __str__(self):
         return f"{self.name} ({self.roll_number})"
+
 class Subject(models.Model):
     student = models.ForeignKey(Student, on_delete=models.CASCADE, related_name='subjects')
     name = models.CharField(max_length=100)

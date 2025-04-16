@@ -20,7 +20,7 @@
                     <li class="nav-item"><a class="nav-link" href="{% url 'home' %}">Home</a></li>
 
                     {% if request.user.is_superuser %}
-                        <li class="nav-item"><a class="nav-link" href="{% url 'student_list' %}">Students</a></li>
+                        <li class="nav-item"><a class="nav-link" href="{% url 'students:student_list' %}">Students</a></li>
                         <li class="nav-item"><a class="nav-link" href="{% url 'faculty_list' %}">Faculty</a></li>
 
                     {% elif request.user.student %}

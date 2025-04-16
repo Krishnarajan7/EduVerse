@@ -13,13 +13,16 @@ def role_selection(request):
 
 def home(request):
     if request.user.is_authenticated:
-        if hasattr(request.user, 'student'):
+        if request.user.is_superuser:
+            return redirect('/admin/') 
+        elif hasattr(request.user, 'student'):
             return redirect('students:student_dashboard')
         elif hasattr(request.user, 'faculty'):
             return redirect('faculty:faculty_dashboard')
         else:
             return redirect('role_selection')
     return render(request, 'students/home.html', {'message': 'Please log in.'})
+
 
 def custom_logout(request):
     logout(request)
@@ -44,8 +47,8 @@ class StudentLoginView(View):
             login(request, user)
             student = user.student
             if not student.changed_password:
-                return redirect('students:student_dashboard')  # Ensure namespace
-            return redirect('students:student_dashboard')  # Ensure namespace
+                return redirect('students:student_dashboard') 
+            return redirect('students:student_dashboard')  
         else:
             messages.error(request, 'Invalid credentials or not a student.')
             return render(request, 'students/student_login.html')
@@ -99,6 +102,7 @@ def student_dashboard(request):
         'total_due': total_due,
         'attendance_percentage': attendance_percentage,
         'average_marks': average_marks,
+        'request': request,  
     })
 
 @login_required
