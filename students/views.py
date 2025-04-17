@@ -100,7 +100,8 @@ def student_dashboard(request):
     attendance_percentage = student.attendance_percentage
     average_marks = student.subjects.aggregate(avg=Avg('marks'))['avg'] or 0.00
     circulars = Circular.objects.all()[:5]
-    
+    exam_timetable = ExamTimetable.objects.all() 
+    class_timetable = ClassTimetable.objects.all()
     can_edit_students = request.user.is_superuser or request.user.has_perm("students.change_student")
 
     return render(request, 'students/student_dashboard.html', {
@@ -113,6 +114,8 @@ def student_dashboard(request):
         'can_change_student': request.user.has_perm("students.change_student"),
         'circulars': circulars,
         'can_edit_students' : can_edit_students,
+        'exam_timetable' : exam_timetable,
+        'class_timetable' : class_timetable,
     })
 
     

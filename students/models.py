@@ -116,11 +116,4 @@ class ClassTimetable(models.Model):
 
     def __str__(self):
         return f"{self.day} - {self.subject}"
-    
-class Attendance(models.Model):
-    student = models.ForeignKey(Student, on_delete=models.CASCADE, related_name='attendances')
-    date = models.DateField(default=timezone.now)
-    is_present = models.BooleanField(default=True)
 
-    def __str__(self):
-        return f"{self.student.name} - {self.date} - {'Present' if self.is_present else 'Absent'}"
