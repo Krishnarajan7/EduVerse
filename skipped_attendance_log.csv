@@ -1,0 +1,6 @@
+student_roll_number,faculty_roll_number,class_group_id,subject_id,date,period,is_present,reason
+CSE006,FAC006,6,6,2025-04-17,6,True,class_not_found
+CSE007,FAC007,7,7,2025-04-18,7,False,class_not_found
+CSE008,FAC008,8,8,2025-04-18,1,True,class_not_found
+CSE009,FAC009,9,9,2025-04-19,2,False,class_not_found
+CSE010,FAC010,10,10,2025-04-19,3,True,class_not_found

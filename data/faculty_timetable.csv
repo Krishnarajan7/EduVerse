@@ -1,0 +1,11 @@
+faculty_roll_number,day,period,subject_id,class_group_id
+FAC001,MON,1,1,1  
+FAC002,TUE,2,2,2  
+FAC003,WED,3,3,3  
+FAC004,THU,4,4,4  
+FAC005,FRI,5,5,5  
+FAC006,SAT,6,6,6  
+FAC007,MON,7,7,7  
+FAC008,TUE,1,8,8  
+FAC009,WED,2,9,9  
+FAC010,THU,3,10,10

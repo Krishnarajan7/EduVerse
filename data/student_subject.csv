@@ -1,0 +1,21 @@
+student_roll_number,name,marks
+CSE001,Programming Fundamentals,85.5
+CSE001,Algebra,90.0
+CSE002,Physics I,78.5
+CSE002,Circuit Theory,82.0
+CSE003,Data Structures,88.0
+CSE003,Calculus,85.0
+CSE004,Chemistry I,76.5
+CSE004,Electromagnetism,80.0
+CSE005,Digital Electronics,92.0
+CSE005,Algorithms,95.5
+CSE006,Programming Fundamentals,87.0
+CSE006,Algebra,84.5
+CSE007,Physics I,79.0
+CSE007,Circuit Theory,81.5
+CSE008,Data Structures,89.0
+CSE008,Calculus,86.0
+CSE009,Chemistry I,77.5
+CSE009,Electromagnetism,83.0
+CSE010,Digital Electronics,91.0
+CSE010,Algorithms,94.5
