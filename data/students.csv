@@ -1,11 +1,101 @@
-username,password,name,roll_number,class_group,email
-student1,student123,Student One,CSE001,1st CSE A,student1@example.com
-student2,student123,Student Two,CSE002,1st CSE A,student2@example.com
-student3,student123,Student Three,CSE003,1st CSE B,student3@example.com
-student4,student123,Student Four,CSE004,1st CSE B,student4@example.com
-student5,student123,Student Five,CSE005,2nd CSE A,student5@example.com
-student6,student123,Student Six,CSE006,2nd CSE A,student6@example.com
-student7,student123,Student Seven,CSE007,2nd CSE B,student7@example.com
-student8,student123,Student Eight,CSE008,2nd CSE B,student8@example.com
-student9,student123,Student Nine,CSE009,3rd CSE A,student9@example.com
-student10,student123,Student Ten,CSE010,3rd CSE A,student10@example.com
+roll_number,name,email,class_group_id
+1A001,Anjali Sharma,anjali.sharma@eduverse.org,1
+1A002,Vikram Singh,vikram.singh@eduverse.org,1
+1A003,Priya Patel,priya.patel@eduverse.org,1
+1A004,Rahul Mehta,rahul.mehta@eduverse.org,1
+1A005,Neha Gupta,neha.gupta@eduverse.org,1
+1A006,Amit Kumar,amit.kumar@eduverse.org,1
+1A007,Shreya Desai,shreya.desai@eduverse.org,1
+1A008,Karan Yadav,karan.yadav@eduverse.org,1
+1A009,Deepika Reddy,deepika.reddy@eduverse.org,1
+1A010,Suresh Nair,suresh.nair@eduverse.org,1
+1B001,Sneha Joshi,sneha.joshi@eduverse.org,2
+1B002,Rajesh Iyer,rajesh.iyer@eduverse.org,2
+1B003,Lakshmi Rao,lakshmi.rao@eduverse.org,2
+1B004,Arjun Malik,arjun.malik@eduverse.org,2
+1B005,Kavita Singh,kavita.singh@eduverse.org,2
+1B006,Vivek Sharma,vivek.sharma@eduverse.org,2
+1B007,Anita Gupta,anita.gupta@eduverse.org,2
+1B008,Rohan Desai,rohan.desai@eduverse.org,2
+1B009,Pooja Nair,pooja.nair@eduverse.org,2
+1B010,Sanjay Kumar,sanjay.kumar@eduverse.org,2
+2A001,Meera Reddy,meera.reddy@eduverse.org,3
+2A002,Nikhil Sharma,nikhil.sharma@eduverse.org,3
+2A003,Harshit Desai,harshit.desai@eduverse.org,3
+2A004,Simran Gupta,simran.gupta@eduverse.org,3
+2A005,Karan Soni,karan.soni@eduverse.org,3
+2A006,Aarav Sharma,aarav.sharma@eduverse.org,3
+2A007,Kavya Patel,kavya.patel@eduverse.org,3
+2A008,Rahul Reddy,rahul.reddy@eduverse.org,3
+2A009,Sneha Mehta,sneha.mehta@eduverse.org,3
+2A010,Priyanka Joshi,priyanka.joshi@eduverse.org,3
+2B001,Ravi Kumar,ravi.kumar@eduverse.org,4
+2B002,Amrita Rani,amrita.rani@eduverse.org,4
+2B003,Neha Sharma,neha.sharma@eduverse.org,4
+2B004,Ashish Yadav,ashish.yadav@eduverse.org,4
+2B005,Shubham Verma,shubham.verma@eduverse.org,4
+2B006,Nikita Singh,nikita.singh@eduverse.org,4
+2B007,Rajeev Kumar,rajeeve.kumar@eduverse.org,4
+2B008,Seema Rani,seema.rani@eduverse.org,4
+2B009,Vikas Patil,vikas.patil@eduverse.org,4
+2B010,Rajiv Reddy,rajiv.reddy@eduverse.org,4
+2C001,Amit Sharma,amit.sharma@eduverse.org,5
+2C002,Pooja Yadav,pooja.yadav@eduverse.org,5
+2C003,Pradeep Reddy,pradeep.reddy@eduverse.org,5
+2C004,Snehal Desai,snehal.desai@eduverse.org,5
+2C005,Anju Kaur,anju.kaur@eduverse.org,5
+2C006,Vikram Rathi,vikram.rathi@eduverse.org,5
+2C007,Komal Sharma,komal.sharma@eduverse.org,5
+2C008,Ravi Patel,ravi.patel@eduverse.org,5
+2C009,Amit Joshi,amit.joshi@eduverse.org,5
+2C010,Ajay Verma,ajay.verma@eduverse.org,5
+3A001,Deepika Kumar,deepika.kumar@eduverse.org,6
+3A002,Pradeep Verma,pradeep.verma@eduverse.org,6
+3A003,Seema Singh,seema.singh@eduverse.org,6
+3A004,Rohit Soni,rohit.soni@eduverse.org,6
+3A005,Komal Reddy,komal.reddy@eduverse.org,6
+3A006,Ravi Yadav,ravi.yadav@eduverse.org,6
+3A007,Ajay Rani,ajay.rani@eduverse.org,6
+3A008,Rajesh Desai,rajesh.desai@eduverse.org,6
+3A009,Anjali Verma,anjali.verma@eduverse.org,6
+3A010,Nisha Singh,nisha.singh@eduverse.org,6
+3B001,Sanjay Yadav,sanjay.yadav@eduverse.org,7
+3B002,Neeraj Gupta,neeraj.gupta@eduverse.org,7
+3B003,Rahul Desai,rahul.desai@eduverse.org,7
+3B004,Amit Yadav,amit.yadav@eduverse.org,7
+3B005,Shivani Kumar,shivani.kumar@eduverse.org,7
+3B006,Meena Patel,meena.patel@eduverse.org,7
+3B007,Neha Desai,neha.desai@eduverse.org,7
+3B008,Ravi Soni,ravi.soni@eduverse.org,7
+3B009,Anjali Sharma,anjali.sharma@eduverse.org,7
+3B010,Amit Desai,amit.desai@eduverse.org,7
+3C001,Shreya Reddy,shreya.reddy@eduverse.org,8
+3C002,Rahul Kumar,rahul.kumar@eduverse.org,8
+3C003,Vikas Sharma,vikas.sharma@eduverse.org,8
+3C004,Komal Joshi,komal.joshi@eduverse.org,8
+3C005,Pooja Verma,pooja.verma@eduverse.org,8
+3C006,Rajesh Sharma,rajesh.sharma@eduverse.org,8
+3C007,Shivani Rani,shivani.rani@eduverse.org,8
+3C008,Neha Yadav,neha.yadav@eduverse.org,8
+3C009,Anita Verma,anita.verma@eduverse.org,8
+3C010,Simran Kumar,simran.kumar@eduverse.org,8
+4A001,Divya Sharma,divya.sharma@eduverse.org,9
+4A002,Ankit Rathi,ankit.rathi@eduverse.org,9
+4A003,Shivani Gupta,shivani.gupta@eduverse.org,9
+4A004,Vikash Patel,vikash.patel@eduverse.org,9
+4A005,Neha Yadav,neha.yadav@eduverse.org,9
+4A006,Komal Joshi,komal.joshi@eduverse.org,9
+4A007,Snehal Rathi,snehal.rathi@eduverse.org,9
+4A008,Shiv Kumar,shiv.kumar@eduverse.org,9
+4A009,Kavya Gupta,kavya.gupta@eduverse.org,9
+4A010,Ravi Mehta,ravi.mehta@eduverse.org,9
+4B001,Ankush Sharma,ankush.sharma@eduverse.org,10
+4B002,Deepika Joshi,deepika.joshi@eduverse.org,10
+4B003,Amit Rathi,amit.rathi@eduverse.org,10
+4B004,Rajesh Rani,rajesh.rani@eduverse.org,10
+4B005,Komal Sharma,komal.sharma@eduverse.org,10
+4B006,Shivani Patel,shivani.patel@eduverse.org,10
+4B007,Anjali Yadav,anjali.yadav@eduverse.org,10
+4B008,Nikhil Rathi,nikhil.rathi@eduverse.org,10
+4B009,Meena Kumar,meena.kumar@eduverse.org,10
+4B010,Santosh Mehta,santosh.mehta@eduverse.org,10
