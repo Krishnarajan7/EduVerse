@@ -38,7 +38,8 @@ class Student(models.Model):
     place_of_birth = models.CharField(max_length=100, blank=True, null=True)
     admission_date = models.DateField(blank=True, null=True)
     admission_type = models.CharField(max_length=50, choices=[('Regular', 'Regular'), ('Special', 'Special')], blank=True, null=True)
-
+    reset_token = models.CharField(max_length=100, blank=True, null=True)
+    reset_token_expiry = models.DateTimeField(blank=True, null=True)
     def __str__(self):
         return f"{self.name} ({self.roll_number})"
 
