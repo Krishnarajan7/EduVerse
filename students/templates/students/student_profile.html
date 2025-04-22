@@ -1,95 +1,51 @@
 {% extends 'base.html' %}
-{% load humanize %}
-
-{% block title %}My Profile{% endblock %}
-
 {% block content %}
-    <div class="text-center mt-5">
-        <h1 class="mb-3">My Profile</h1>
-        <div class="card w-75 mx-auto">
-            <div class="card-body">
-                <!-- Profile Picture -->
-                {% if user.student.profile_picture %}
-                    <img src="{{ user.student.profile_picture.url }}" alt="{{ user.student.name }}" class="rounded-circle mb-3" style="width: 150px; height: 150px; object-fit: cover;">
-                {% else %}
-                    <i class="fas fa-user-circle fa-5x text-muted mb-3"></i>
-                {% endif %}
-
-                <!-- General Information -->
-                <h5 class="card-title">{{ user.student.name }}</h5>
-                <ul class="list-group list-group-flush">
-                    <li class="list-group-item"><strong>Roll No:</strong> {{ user.student.roll_number }}</li>
-                    <li class="list-group-item"><strong>Gender:</strong> {{ user.student.gender|default:"Not provided" }}</li>
-                    <li class="list-group-item"><strong>Father's Name:</strong> {{ user.student.father_name|default:"Not provided" }}</li>
-                    <li class="list-group-item"><strong>Mother's Name:</strong> {{ user.student.mother_name|default:"Not provided" }}</li>
-                    <li class="list-group-item"><strong>Student Mobile No:</strong> {{ user.student.phone|default:"Not provided" }}</li>
-                    <li class="list-group-item"><strong>Parent Mobile No:</strong> {{ user.student.parent_phone|default:"Not provided" }}</li>
-                    <li class="list-group-item"><strong>Community:</strong> {{ user.student.community|default:"Not provided" }}</li>
-                    <li class="list-group-item"><strong>Date of Birth:</strong> {{ user.student.dob|date:"d/m/Y"|default:"Not provided" }}</li>
-                    <li class="list-group-item"><strong>Place of Birth:</strong> {{ user.student.place_of_birth|default:"Not provided" }}</li>
-                    <li class="list-group-item"><strong>Admission Date:</strong> {{ user.student.admission_date|date:"d/m/Y"|default:"Not provided" }}</li>
-                    <li class="list-group-item"><strong>Admission Type:</strong> {{ user.student.admission_type|default:"Not provided" }}</li>
-                </ul>
-
-                <!-- Attendance History -->
-                <h6 class="mt-4">Attendance History</h6>
-                {% if user.student.attendances.all %}
-                    <table class="table table-striped w-75 mx-auto">
-                        <thead>
-                            <tr>
-                                <th>Date</th>
-                                <th>Status</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% for attendance in user.student.attendances.all %}
-                                <tr>
-                                    <td>{{ attendance.date }}</td>
-                                    <td>{{ attendance.is_present|yesno:"Present,Absent" }}</td>
-                                </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
-                    <h6>Semester-Wise Attendance</h6>
-                    <p><strong>Semester 1 (Jan-May):</strong> {{ present_count_s1 }} / {{ total_attendances_s1 }} ({{ attendance_percentage_s1|floatformat:2 }}%)</p>
-                    <p><strong>Semester 2 (Jun-Dec):</strong> {{ present_count_s2 }} / {{ total_attendances_s2 }} ({{ attendance_percentage_s2|floatformat:2 }}%)</p>
-                    <p><strong>Overall:</strong> {{ present_count }} / {{ total_attendances }} ({{ attendance_percentage|floatformat:2 }}%)</p>
-                {% else %}
-                    <p>No attendance records found.</p>
-                {% endif %}
-
-                <!-- Fee Details -->
-                <h6 class="mt-4">Fee Details</h6>
-                <p><strong>Total Amount Due:</strong> {{ total_due }}</p>
-                {% if user.student.fees.all %}
-                    <table class="table table-striped w-75 mx-auto">
-                        <thead>
-                            <tr>
-                                <th>Amount</th>
-                                <th>Due Date</th>
-                                <th>Status</th>
-                                <th>Paid Date</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% for fee in user.student.fees.all %}
-                                <tr>
-                                    <td>{{ fee.amount }}</td>
-                                    <td>{{ fee.due_date }}</td>
-                                    <td>{{ fee.paid|yesno:"Paid,Unpaid" }}</td>
-                                    <td>{{ fee.paid_date|default:"N/A" }}</td>
-                                </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
-                {% else %}
-                    <p>No fee records found.</p>
-                {% endif %}
+<div class="container mt-5">
+    <h1 class="text-center mb-4">My Profile</h1>
+    {% if messages %}
+        {% for message in messages %}
+            <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                {{ message }}
+                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                    <span aria-hidden="true">×</span>
+                </button>
             </div>
+        {% endfor %}
+    {% endif %}
+
+    <div class="card shadow-sm">
+        <div class="card-header bg-primary text-white text-center">
+            <h4>Profile Overview</h4>
         </div>
-        <p class="mt-3">
-            <a href="{% url 'students:student_dashboard' %}" class="btn btn-primary">Back to Dashboard</a>
-            <a href="{% url 'students:edit_student_profile' %}" class="btn btn-warning">Edit Profile</a>
-        </p>
+        <div class="card-body">
+            <div class="text-center mb-4">
+                <img src="{% if student.profile_picture %}{{ student.profile_picture.url }}{% else %}/static/images/default-profile.png{% endif %}" alt="Profile Picture" class="img-thumbnail rounded-circle" style="max-width: 200px;">
+                <h5 class="mt-3">{{ student.name }}</h5>
+                <p class="text-muted">Roll Number: {{ student.roll_number }}</p>
+            </div>
+            <div class="row">
+                <div class="col-md-6">
+                    <p><strong>Phone:</strong> {{ student.phone|default:'Not provided' }}</p>
+                    <p><strong>Address:</strong> {{ student.address|default:'Not provided' }}</p>
+                    <p><strong>Father's Name:</strong> {{ student.father_name|default:'Not provided' }}</p>
+                    <p><strong>Mother's Name:</strong> {{ student.mother_name|default:'Not provided' }}</p>
+                </div>
+                <div class="col-md-6">
+                    <p><strong>Parent Phone:</strong> {{ student.parent_phone|default:'Not provided' }}</p>
+                    <p><strong>Community:</strong> {{ student.community|default:'Not provided' }}</p>
+                    <p><strong>Place of Birth:</strong> {{ student.place_of_birth|default:'Not provided' }}</p>
+                    <p><strong>Admission Date:</strong> {{ student.admission_date|date:'Y-m-d'|default:'Not provided' }}</p>
+                    <p><strong>Admission Type:</strong> {{ student.admission_type|default:'Not provided' }}</p>
+                    <p><strong>Gender:</strong> {{ student.gender|default:'Not provided' }}</p>
+                </div>
+            </div>
+            <div class="text-center mt-4">
+                <a href="{% url 'students:edit_student_profile' %}" class="btn btn-primary">Edit Profile</a>
+            </div>
+            <p class="text-danger text-center mt-3">{% if not student.phone or not student.address or not student.father_name or not student.mother_name or not student.parent_phone or not student.community or not student.place_of_birth or not student.admission_date or not student.admission_type or not student.gender %}
+                Complete your profile to unlock full features!
+            {% endif %}</p>
+        </div>
     </div>
+</div>
 {% endblock %}
