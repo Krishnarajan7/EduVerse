@@ -14,3 +14,10 @@ db.sqlite3
 # Misc
 *.DS_Store
 .env
+
+# Ignore all CSV files
+*.csv
+
+# But keep the data folder
+!backend/data/*.csv
+
