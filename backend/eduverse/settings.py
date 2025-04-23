@@ -121,6 +121,21 @@ LOGOUT_REDIRECT_URL = '/role_selection/'
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
 
+
+# Password reset 
+# Other settings like INSTALLED_APPS, MIDDLEWARE, etc.
+
+# Email configuration
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+EMAIL_HOST_USER = 'your-email@gmail.com'  # Replace with your Gmail address
+EMAIL_HOST_PASSWORD = 'your-app-password'  # Replace with your app-specific password (if 2FA enabled) or regular password
+DEFAULT_FROM_EMAIL = 'your-email@gmail.com'  # Same as EMAIL_HOST_USER
+
+# Other settings like DATABASES, etc.
+
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.0/ref/settings/#default-auto-field
 

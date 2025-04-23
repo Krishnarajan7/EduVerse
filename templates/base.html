@@ -43,7 +43,7 @@
 
                     {% elif request.user.faculty %}
                         <li class="nav-item"><a class="nav-link" href="{% url 'faculty:faculty_dashboard' %}">Dashboard</a></li>
-                        <li class="nav-item"><a class="nav-link" href="{% url 'faculty:notices' %}">Notices</a></li>
+                        <li class="nav-item"><a class="nav-link" href="{% url 'faculty:notice_list' %}">Notices</a></li>
                     {% endif %}
                 </ul>
                 {% endif %}

@@ -19,8 +19,8 @@
                 <div class="card-body">
                     <p>{{ notice.content }}</p>
                     {% if user.is_authenticated and user.faculty %}
-                        <a href="{% url 'edit_notice' notice.id %}" class="btn btn-sm btn-warning">Edit</a>
-                        <a href="{% url 'delete_notice' notice.id %}" class="btn btn-sm btn-danger">Delete</a>
+                        <a href="{% url 'faculty:edit_notice' notice.id %}" class="btn btn-sm btn-warning">Edit</a>
+                        <a href="{% url 'faculty:delete_notice' notice.id %}" class="btn btn-sm btn-danger">Delete</a>
                     {% endif %}
                 </div>
             </div>

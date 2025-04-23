@@ -1,0 +1,46 @@
+{% extends 'base.html' %}
+
+{% block title %}Student List{% endblock %}
+
+{% block content %}
+    <h1>Student List</h1>
+    <form method="GET" class="mb-3">
+        <select name="class_id" onchange="this.form.submit()">
+            <option value="">All Classes</option>
+            {% for class in classes %}
+                <option value="{{ class.id }}" {% if selected_class == class.id|stringformat:"s" %}selected{% endif %}>{{ class }}</option>
+            {% endfor %}
+        </select>
+    </form>
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Profile Picture</th>
+                <th>Name</th>
+                <th>Roll Number</th>
+                <th>Email</th>
+                <th>Class</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for student in students %}
+                <tr>
+                    <td><i class="fas fa-user-circle"></i></td>
+                    <td>{{ student.name }}</td>
+                    <td>{{ student.roll_number }}</td>
+                    <td>{{ student.email }}</td>
+                    <td>{{ student.class_group }}</td>
+                    <td>
+                        {% if request.user.is_superuser or request.user.faculty %}
+                            <a href="#" class="btn btn-warning btn-sm">Edit</a>
+                            <a href="#" class="btn btn-danger btn-sm">Delete</a>
+                            <a href="#" class="btn btn-info btn-sm">Attendance</a>
+                            <a href="#" class="btn btn-primary btn-sm">Add Marks</a>
+                        {% endif %}
+                    </td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+{% endblock %}
