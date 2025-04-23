@@ -1,5 +1,5 @@
 roll_number,name,email,class_group_id
-1A001,Anjali Sharma,anjali.sharma@eduverse.org,1
+1A001,Anjali Sharma,anjali.sharma1@eduverse.org,1
 1A002,Vikram Singh,vikram.singh@eduverse.org,1
 1A003,Priya Patel,priya.patel@eduverse.org,1
 1A004,Rahul Mehta,rahul.mehta@eduverse.org,1
@@ -35,7 +35,7 @@ roll_number,name,email,class_group_id
 2B004,Ashish Yadav,ashish.yadav@eduverse.org,4
 2B005,Shubham Verma,shubham.verma@eduverse.org,4
 2B006,Nikita Singh,nikita.singh@eduverse.org,4
-2B007,Rajeev Kumar,rajeeve.kumar@eduverse.org,4
+2B007,Rajeev Kumar,rajeev.kumar@eduverse.org,4
 2B008,Seema Rani,seema.rani@eduverse.org,4
 2B009,Vikas Patil,vikas.patil@eduverse.org,4
 2B010,Rajiv Reddy,rajiv.reddy@eduverse.org,4
@@ -67,7 +67,7 @@ roll_number,name,email,class_group_id
 3B006,Meena Patel,meena.patel@eduverse.org,7
 3B007,Neha Desai,neha.desai@eduverse.org,7
 3B008,Ravi Soni,ravi.soni@eduverse.org,7
-3B009,Anjali Sharma,anjali.sharma@eduverse.org,7
+3B009,Anjali Sharma,anjali.sharma2@eduverse.org,7
 3B010,Amit Desai,amit.desai@eduverse.org,7
 3C001,Shreya Reddy,shreya.reddy@eduverse.org,8
 3C002,Rahul Kumar,rahul.kumar@eduverse.org,8
@@ -83,8 +83,8 @@ roll_number,name,email,class_group_id
 4A002,Ankit Rathi,ankit.rathi@eduverse.org,9
 4A003,Shivani Gupta,shivani.gupta@eduverse.org,9
 4A004,Vikash Patel,vikash.patel@eduverse.org,9
-4A005,Neha Yadav,neha.yadav@eduverse.org,9
-4A006,Komal Joshi,komal.joshi@eduverse.org,9
+4A005,Neha Yadav,neha.yadav2@eduverse.org,9
+4A006,Komal Joshi,komal.joshi2@eduverse.org,9
 4A007,Snehal Rathi,snehal.rathi@eduverse.org,9
 4A008,Shiv Kumar,shiv.kumar@eduverse.org,9
 4A009,Kavya Gupta,kavya.gupta@eduverse.org,9
@@ -93,7 +93,7 @@ roll_number,name,email,class_group_id
 4B002,Deepika Joshi,deepika.joshi@eduverse.org,10
 4B003,Amit Rathi,amit.rathi@eduverse.org,10
 4B004,Rajesh Rani,rajesh.rani@eduverse.org,10
-4B005,Komal Sharma,komal.sharma@eduverse.org,10
+4B005,Komal Sharma,komal.sharma2@eduverse.org,10
 4B006,Shivani Patel,shivani.patel@eduverse.org,10
 4B007,Anjali Yadav,anjali.yadav@eduverse.org,10
 4B008,Nikhil Rathi,nikhil.rathi@eduverse.org,10
