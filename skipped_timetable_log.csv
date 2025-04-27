@@ -1,6 +1,0 @@
-faculty_roll_number,day,period,subject_id,class_group_id,reason
-FAC006,SAT,6,6,6  ,class_not_found
-FAC007,MON,7,7,7  ,class_not_found
-FAC008,TUE,1,8,8  ,class_not_found
-FAC009,WED,2,9,9  ,class_not_found
-FAC010,THU,3,10,10,class_not_found
