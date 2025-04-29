@@ -1,88 +1,94 @@
-from django.shortcuts import render, redirect
-from django.contrib.auth.decorators import login_required
+from django.shortcuts import redirect
 from django.contrib.auth import login, authenticate, logout, update_session_auth_hash
 from django.contrib import messages
-from django.views import View
 from django.core.mail import send_mail
 from django.urls import reverse
 from django.contrib.sites.shortcuts import get_current_site
 from .models import Student, Attendance, Fee, Subject, Circular, ExamTimetable, ClassTimetable
 from .forms import StudentProfileForm, ChangePasswordForm
+from .serializers import StudentSerializer, FeeSerializer, CircularSerializer, ExamTimetableSerializer, ClassTimetableSerializer, AttendanceSerializer
+from rest_framework.decorators import api_view, permission_classes
+from rest_framework.response import Response
+from rest_framework.permissions import IsAuthenticated
+from rest_framework import status
 from django.db.models import Sum, Avg
 from datetime import datetime
 import uuid
 
+@api_view(['GET'])
 def role_selection(request):
-    return render(request, 'students/role_selection.html')
+    # Since this is a UI route, redirect to frontend or return a simple message
+    return Response({"message": "Role selection is handled by the frontend."}, status=status.HTTP_200_OK)
 
+@api_view(['GET'])
 def home(request):
     if request.user.is_authenticated:
         if request.user.is_superuser:
-            return redirect('/admin/') 
+            return Response({"redirect": "/admin/"}, status=status.HTTP_302_FOUND)
         elif hasattr(request.user, 'student'):
-            return redirect('students:student_dashboard')
+            return Response({"redirect": "/api/students/dashboard/"}, status=status.HTTP_302_FOUND)
         elif hasattr(request.user, 'faculty'):
-            return redirect('faculty:faculty_dashboard')
+            return Response({"redirect": "/api/faculty/dashboard/"}, status=status.HTTP_302_FOUND)
         else:
-            return redirect('role_selection')
-    return render(request, 'students/home.html', {'message': 'Please log in.'})
+            return Response({"redirect": "/role-selection"}, status=status.HTTP_302_FOUND)
+    return Response({"message": "Please log in."}, status=status.HTTP_200_OK)
 
+@api_view(['POST'])
 def custom_logout(request):
     logout(request)
-    return redirect('home')
+    return Response({"message": "Logged out successfully", "redirect": "/"}, status=status.HTTP_200_OK)
 
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
 def accounts_profile_redirect(request):
     if hasattr(request.user, 'student'):
-        return redirect('students:student_profile')
+        return Response({"redirect": "/api/students/profile/"}, status=status.HTTP_302_FOUND)
     elif hasattr(request.user, 'faculty'):
-        return redirect('faculty:faculty_profile')
-    return redirect('role_selection')
+        return Response({"redirect": "/api/faculty/profile/"}, status=status.HTTP_302_FOUND)
+    return Response({"redirect": "/role-selection"}, status=status.HTTP_302_FOUND)
 
-class StudentLoginView(View):
-    def get(self, request):
-        return render(request, 'students/student_login.html')
+@api_view(['POST', 'GET'])
+def student_login(request):
+    if request.method == 'GET':
+        return Response({"message": "Login page is handled by the frontend."}, status=status.HTTP_200_OK)
     
-    def post(self, request):
-        username = request.POST['username']
-        password = request.POST['password']
-        user = authenticate(request, username=username, password=password)
-        if user is not None and hasattr(user, 'student'):
-            login(request, user)
-            student = user.student
-            if not student.changed_password:
-                return redirect('students:change_password')
-            return redirect('students:student_dashboard')
-        else:
-            messages.error(request, 'Invalid credentials or not a student.')
-            return render(request, 'students/student_login.html')
+    username = request.data.get('username')
+    password = request.data.get('password')
+    user = authenticate(request, username=username, password=password)
+    if user is not None and hasattr(user, 'student'):
+        login(request, user)
+        student = user.student
+        if not student.changed_password:
+            return Response({"redirect": "/api/students/change-password/"}, status=status.HTTP_302_FOUND)
+        return Response({"message": "Login successful", "redirect": "/api/students/dashboard/"}, status=status.HTTP_200_OK)
+    return Response({"error": "Invalid credentials or not a student."}, status=status.HTTP_401_UNAUTHORIZED)
 
-class FacultyLoginView(View):
-    def get(self, request):
-        return render(request, 'faculty/faculty_login.html')
+@api_view(['POST', 'GET'])
+def faculty_login(request):
+    if request.method == 'GET':
+        return Response({"message": "Login page is handled by the frontend."}, status=status.HTTP_200_OK)
     
-    def post(self, request):
-        username = request.POST['username']
-        password = request.POST['password']
-        user = authenticate(request, username=username, password=password)
-        if user is not None and hasattr(user, 'faculty'):
-            login(request, user)
-            return redirect('faculty:faculty_dashboard')
-        else:
-            messages.error(request, 'Invalid credentials or not a faculty.')
-            return render(request, 'faculty/faculty_login.html')
+    username = request.data.get('username')
+    password = request.data.get('password')
+    user = authenticate(request, username=username, password=password)
+    if user is not None and hasattr(user, 'faculty'):
+        login(request, user)
+        return Response({"message": "Login successful", "redirect": "/api/faculty/dashboard/"}, status=status.HTTP_200_OK)
+    return Response({"error": "Invalid credentials or not a faculty."}, status=status.HTTP_401_UNAUTHORIZED)
 
-@login_required
+@api_view(['GET', 'POST'])
+@permission_classes([IsAuthenticated])
 def student_profile(request):
     if not hasattr(request.user, 'student'):
-        return redirect('role_selection')
+        return Response({"error": "Access denied."}, status=status.HTTP_403_FORBIDDEN)
+    
     student = request.user.student
     if request.method == 'POST':
-        form = StudentProfileForm(request.POST, request.FILES, instance=student)
+        form = StudentProfileForm(request.data, request.FILES, instance=student)
         if form.is_valid():
             current_password = form.cleaned_data.get('current_password')
             if current_password and not request.user.check_password(current_password):
-                messages.error(request, 'Current password is incorrect.')
-                return render(request, 'students/student_profile.html', {'form': form})
+                return Response({"error": "Current password is incorrect."}, status=status.HTTP_400_BAD_REQUEST)
             new_password = form.cleaned_data.get('new_password')
             if new_password:
                 request.user.set_password(new_password)
@@ -90,80 +96,73 @@ def student_profile(request):
                 update_session_auth_hash(request, request.user)
                 student.changed_password = True
                 student.save()
-                messages.success(request, 'Password updated successfully!')
             form.save()
-            messages.success(request, 'Profile updated successfully!')
-            return redirect('students:student_profile')
-    else:
-        form = StudentProfileForm(instance=student)
+            return Response({"message": "Profile updated successfully!"}, status=status.HTTP_200_OK)
+        return Response({"error": "Invalid form data.", "details": form.errors}, status=status.HTTP_400_BAD_REQUEST)
+    
+    serializer = StudentSerializer(student)
     total_due = student.fees.filter(paid=False).aggregate(total=Sum('amount'))['total'] or 0.00
-    return render(request, 'students/student_profile.html', {
-        'student': student,
-        'form': form,
-        'total_due': total_due,
-        'attendance_percentage': student.attendance_percentage,
-    })
+    return Response({
+        "student": serializer.data,
+        "total_due": total_due,
+        "attendance_percentage": student.attendance_percentage,
+    }, status=status.HTTP_200_OK)
 
-@login_required
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
 def change_password(request):
     if not hasattr(request.user, 'student'):
-        return redirect('role_selection')
+        return Response({"error": "Access denied."}, status=status.HTTP_403_FORBIDDEN)
+    
     student = request.user.student
-    if request.method == 'POST':
-        form = ChangePasswordForm(request.POST)
-        if form.is_valid():
-            current_password = form.cleaned_data['current_password']
-            if not request.user.check_password(current_password):
-                messages.error(request, 'Current password is incorrect.')
-                return redirect('students:change_password')
-            new_password = form.cleaned_data['new_password']
-            confirm_password = form.cleaned_data['confirm_password']
-            if new_password == confirm_password:
-                request.user.set_password(new_password)
-                request.user.save()
-                update_session_auth_hash(request, request.user)
-                student.changed_password = True
-                student.save()
-                messages.success(request, 'Password updated successfully! Redirecting to dashboard.')
-                return redirect('students:student_dashboard')
-            else:
-                messages.error(request, 'Passwords do not match.')
-    else:
-        form = ChangePasswordForm()
-    return render(request, 'students/change_password.html', {'form': form})
+    form = ChangePasswordForm(request.data)
+    if form.is_valid():
+        current_password = form.cleaned_data['current_password']
+        if not request.user.check_password(current_password):
+            return Response({"error": "Current password is incorrect."}, status=status.HTTP_400_BAD_REQUEST)
+        new_password = form.cleaned_data['new_password']
+        confirm_password = form.cleaned_data['confirm_password']
+        if new_password == confirm_password:
+            request.user.set_password(new_password)
+            request.user.save()
+            update_session_auth_hash(request, request.user)
+            student.changed_password = True
+            student.save()
+            return Response({"message": "Password updated successfully!", "redirect": "/api/students/dashboard/"}, status=status.HTTP_200_OK)
+        return Response({"error": "Passwords do not match."}, status=status.HTTP_400_BAD_REQUEST)
+    return Response({"error": "Invalid form data.", "details": form.errors}, status=status.HTTP_400_BAD_REQUEST)
 
-@login_required
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
 def student_dashboard(request):
     if not hasattr(request.user, 'student'):
-        return redirect('role_selection')
+        return Response({"error": "Access denied."}, status=status.HTTP_403_FORBIDDEN)
+    
     student = request.user.student
-    total_due = student.fees.filter(paid=False).aggregate(Sum('amount'))['amount__sum'] or 0
-    unpaid_fee = student.fees.filter(paid=False).first()
     total_due = student.fees.filter(paid=False).aggregate(total=Sum('amount'))['total'] or 0.00
+    unpaid_fee = student.fees.filter(paid=False).first()
     attendance_percentage = student.attendance_percentage
     average_marks = student.subjects.aggregate(avg=Avg('marks'))['avg'] or 0.00
     circulars = Circular.objects.all()[:5]
-    exam_timetable = ExamTimetable.objects.all() 
+    exam_timetable = ExamTimetable.objects.all()
     class_timetable = ClassTimetable.objects.all()
-    can_edit_students = request.user.is_superuser or request.user.has_perm("students.change_student")
 
-    return render(request, 'students/student_dashboard.html', {
-        'student': student,
-        'unpaid_fee': unpaid_fee,
-        'total_due': total_due,
-        'attendance_percentage': attendance_percentage,
-        'average_marks': average_marks,
-        'request': request,  
-        'can_change_student': request.user.has_perm("students.change_student"),
-        'circulars': circulars,
-        'can_edit_students' : can_edit_students,
-        'exam_timetable' : exam_timetable,
-        'class_timetable' : class_timetable,
-    })
+    return Response({
+        "student": StudentSerializer(student).data,
+        "unpaid_fee": FeeSerializer(unpaid_fee).data if unpaid_fee else None,
+        "total_due": total_due,
+        "attendance_percentage": attendance_percentage,
+        "average_marks": average_marks,
+        "circulars": CircularSerializer(circulars, many=True).data,
+        "exam_timetable": ExamTimetableSerializer(exam_timetable, many=True).data,
+        "class_timetable": ClassTimetableSerializer(class_timetable, many=True).data,
+        "can_edit_students": request.user.is_superuser or request.user.has_perm("students.change_student"),
+    }, status=status.HTTP_200_OK)
 
+@api_view(['POST', 'GET'])
 def forgot_password(request):
     if request.method == 'POST':
-        username = request.POST['username']
+        username = request.data.get('username')
         try:
             user = User.objects.get(username=username.lower())
             student = user.student
@@ -179,19 +178,18 @@ def forgot_password(request):
                 [student.email],
                 fail_silently=False,
             )
-            messages.success(request, 'Password reset link sent to your email.')
-            return redirect('students:login')
+            return Response({"message": "Password reset link sent to your email."}, status=status.HTTP_200_OK)
         except (User.DoesNotExist, Student.DoesNotExist):
-            messages.error(request, 'Username not found.')
-            return render(request, 'students/forgot_password.html')
-    return render(request, 'students/forgot_password.html')
+            return Response({"error": "Username not found."}, status=status.HTTP_404_NOT_FOUND)
+    return Response({"message": "Forgot password page is handled by the frontend."}, status=status.HTTP_200_OK)
 
+@api_view(['POST', 'GET'])
 def reset_password(request, token):
     try:
         student = Student.objects.get(reset_token=token, reset_token_expiry__gt=datetime.now())
         if request.method == 'POST':
-            new_password = request.POST['new_password']
-            confirm_password = request.POST['confirm_password']
+            new_password = request.data.get('new_password')
+            confirm_password = request.data.get('confirm_password')
             if new_password == confirm_password:
                 student.user.set_password(new_password)
                 student.user.save()
@@ -199,150 +197,194 @@ def reset_password(request, token):
                 student.reset_token = None
                 student.reset_token_expiry = None
                 student.save()
-                messages.success(request, 'Password reset successfully. You can now log in.')
-                return redirect('students:login')
-            else:
-                messages.error(request, 'Passwords do not match.')
-        return render(request, 'students/reset_password.html', {'token': token})
+                return Response({"message": "Password reset successfully. You can now log in."}, status=status.HTTP_200_OK)
+            return Response({"error": "Passwords do not match."}, status=status.HTTP_400_BAD_REQUEST)
+        return Response({"message": "Reset password page is handled by the frontend.", "token": token}, status=status.HTTP_200_OK)
     except Student.DoesNotExist:
-        messages.error(request, 'Invalid or expired token.')
-        return redirect('students:login')
-    
+        return Response({"error": "Invalid or expired token."}, status=status.HTTP_400_BAD_REQUEST)
 
-    
-@login_required
-def academic(request):
-    return redirect('students:student_dashboard')
-
-@login_required
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
 def edit_student_profile(request):
     if not hasattr(request.user, 'student'):
-        return redirect('role_selection')
+        return Response({"error": "Access denied."}, status=status.HTTP_403_FORBIDDEN)
+    
     student = request.user.student
     if request.method == 'POST':
-        form = StudentProfileForm(request.POST, request.FILES, instance=student)
+        form = StudentProfileForm(request.data, request.FILES, instance=student)
         if form.is_valid():
             form.save()
-            messages.success(request, 'Profile updated successfully!')
-            return redirect('students:student_profile')
-    else:
-        form = StudentProfileForm(instance=student)
+            return Response({"message": "Profile updated successfully!"}, status=status.HTTP_200_OK)
+        return Response({"error": "Invalid form data.", "details": form.errors}, status=status.HTTP_400_BAD_REQUEST)
+    
     total_due = student.fees.filter(paid=False).aggregate(total=Sum('amount'))['total'] or 0.00
-    return render(request, 'students/edit_student_profile.html', {'form': form, 'total_due': total_due})
+    return Response({
+        "student": StudentSerializer(student).data,
+        "total_due": total_due,
+    }, status=status.HTTP_200_OK)
 
-@login_required
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
 def notice_calendar(request):
     if not hasattr(request.user, 'student'):
-        return redirect('role_selection')
-    student = request.user.student
-    total_due = student.fees.filter(paid=False).aggregate(total=Sum('amount'))['total'] or 0.00
-    return render(request, 'students/notice_calendar.html', {'total_due': total_due})
+        return Response({"error": "Access denied."}, status=status.HTTP_403_FORBIDDEN)
+    
+    total_due = request.user.student.fees.filter(paid=False).aggregate(total=Sum('amount'))['total'] or 0.00
+    return Response({"total_due": total_due}, status=status.HTTP_200_OK)
 
-@login_required
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
 def master(request):
     if not hasattr(request.user, 'student'):
-        return redirect('role_selection')
+        return Response({"error": "Access denied."}, status=status.HTTP_403_FORBIDDEN)
+    
     student = request.user.student
     total_due = student.fees.filter(paid=False).aggregate(total=Sum('amount'))['total'] or 0.00
-    return render(request, 'students/master.html', {'student': student, 'total_due': total_due})
+    return Response({
+        "student": StudentSerializer(student).data,
+        "total_due": total_due,
+    }, status=status.HTTP_200_OK)
 
-@login_required
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
 def admission(request):
     if not hasattr(request.user, 'student'):
-        return redirect('role_selection')
+        return Response({"error": "Access denied."}, status=status.HTTP_403_FORBIDDEN)
+    
     student = request.user.student
     total_due = student.fees.filter(paid=False).aggregate(total=Sum('amount'))['total'] or 0.00
-    return render(request, 'students/admission.html', {'student': student, 'total_due': total_due})
+    return Response({
+        "student": StudentSerializer(student).data,
+        "total_due": total_due,
+    }, status=status.HTTP_200_OK)
 
-@login_required
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
 def academic(request):
     if not hasattr(request.user, 'student'):
-        return redirect('role_selection')
+        return Response({"error": "Access denied."}, status=status.HTTP_403_FORBIDDEN)
+    
     student = request.user.student
     total_due = student.fees.filter(paid=False).aggregate(total=Sum('amount'))['total'] or 0.00
     attendance_data = student.attendances.all()
-    return render(request, 'students/academic.html', {'student': student, 'total_due': total_due, 'attendance_data': attendance_data})
+    return Response({
+        "student": StudentSerializer(student).data,
+        "total_due": total_due,
+        "attendance_data": AttendanceSerializer(attendance_data, many=True).data,
+    }, status=status.HTTP_200_OK)
 
-@login_required
+@api_view(['POST', 'GET'])
+@permission_classes([IsAuthenticated])
 def feedback(request):
     if not hasattr(request.user, 'student'):
-        return redirect('role_selection')
+        return Response({"error": "Access denied."}, status=status.HTTP_403_FORBIDDEN)
+    
     student = request.user.student
     total_due = student.fees.filter(paid=False).aggregate(total=Sum('amount'))['total'] or 0.00
     if request.method == 'POST':
-        feedback_text = request.POST.get('feedback')
-        messages.success(request, f'Feedback submitted: {feedback_text}')
-        return redirect('students:feedback')
-    return render(request, 'students/feedback.html', {'student': student, 'total_due': total_due})
+        feedback_text = request.data.get('feedback')
+        return Response({"message": f"Feedback submitted: {feedback_text}"}, status=status.HTTP_200_OK)
+    return Response({
+        "student": StudentSerializer(student).data,
+        "total_due": total_due,
+    }, status=status.HTTP_200_OK)
 
-@login_required
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
 def exam(request):
     if not hasattr(request.user, 'student'):
-        return redirect('role_selection')
+        return Response({"error": "Access denied."}, status=status.HTTP_403_FORBIDDEN)
+    
     student = request.user.student
     total_due = student.fees.filter(paid=False).aggregate(total=Sum('amount'))['total'] or 0.00
-    return render(request, 'students/exam.html', {'student': student, 'total_due': total_due})
+    return Response({
+        "student": StudentSerializer(student).data,
+        "total_due": total_due,
+    }, status=status.HTTP_200_OK)
 
-@login_required
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
 def fee(request):
     if not hasattr(request.user, 'student'):
-        return redirect('role_selection')
+        return Response({"error": "Access denied."}, status=status.HTTP_403_FORBIDDEN)
+    
     student = request.user.student
     total_due = student.fees.filter(paid=False).aggregate(total=Sum('amount'))['total'] or 0.00
     fee_data = student.fees.all()
-    return render(request, 'students/fee.html', {'student': student, 'total_due': total_due, 'fee_data': fee_data})
+    return Response({
+        "student": StudentSerializer(student).data,
+        "total_due": total_due,
+        "fee_data": FeeSerializer(fee_data, many=True).data,
+    }, status=status.HTTP_200_OK)
 
-@login_required
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
 def transport(request):
     if not hasattr(request.user, 'student'):
-        return redirect('role_selection')
+        return Response({"error": "Access denied."}, status=status.HTTP_403_FORBIDDEN)
+    
     student = request.user.student
     total_due = student.fees.filter(paid=False).aggregate(total=Sum('amount'))['total'] or 0.00
-    return render(request, 'students/transport.html', {'student': student, 'total_due': total_due})
+    return Response({
+        "student": StudentSerializer(student).data,
+        "total_due": total_due,
+    }, status=status.HTTP_200_OK)
 
-@login_required
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
 def placement(request):
     if not hasattr(request.user, 'student'):
-        return redirect('role_selection')
+        return Response({"error": "Access denied."}, status=status.HTTP_403_FORBIDDEN)
+    
     student = request.user.student
     total_due = student.fees.filter(paid=False).aggregate(total=Sum('amount'))['total'] or 0.00
-    return render(request, 'students/placement.html', {'student': student, 'total_due': total_due})
+    return Response({
+        "student": StudentSerializer(student).data,
+        "total_due": total_due,
+    }, status=status.HTTP_200_OK)
 
-
-@login_required
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
 def circular(request):
     if not hasattr(request.user, 'student'):
-        return redirect('role_selection')
-    circulars = Circular.objects.all()[:5] 
-    return render(request, 'students/circular.html', {
-        'circulars': circulars,
-    })
+        return Response({"error": "Access denied."}, status=status.HTTP_403_FORBIDDEN)
+    
+    circulars = Circular.objects.all()[:5]
+    return Response({
+        "circulars": CircularSerializer(circulars, many=True).data,
+    }, status=status.HTTP_200_OK)
 
-@login_required
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
 def exam_timetable(request):
     if not hasattr(request.user, 'student'):
-        return redirect('role_selection')
-    exam_timetable = ExamTimetable.objects.all()  
-    return render(request, 'students/exam_timetable.html', {
-        'exam_timetable': exam_timetable,
-    })
+        return Response({"error": "Access denied."}, status=status.HTTP_403_FORBIDDEN)
+    
+    exam_timetable = ExamTimetable.objects.all()
+    return Response({
+        "exam_timetable": ExamTimetableSerializer(exam_timetable, many=True).data,
+    }, status=status.HTTP_200_OK)
 
-@login_required
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
 def class_timetable(request):
     if not hasattr(request.user, 'student'):
-        return redirect('role_selection')
-    class_timetable = ClassTimetable.objects.all()  
-    return render(request, 'students/class_timetable.html', {
-        'class_timetable': class_timetable,
-    })
+        return Response({"error": "Access denied."}, status=status.HTTP_403_FORBIDDEN)
     
-@login_required
+    class_timetable = ClassTimetable.objects.all()
+    return Response({
+        "class_timetable": ClassTimetableSerializer(class_timetable, many=True).data,
+    }, status=status.HTTP_200_OK)
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
 def attendance(request):
     if not hasattr(request.user, 'student'):
-        return redirect('role_selection')
+        return Response({"error": "Access denied."}, status=status.HTTP_403_FORBIDDEN)
+    
     student = request.user.student
     attendance_percentage = student.attendance_percentage
-    return render(request, 'students/attendance.html', {
-        'student': student,
-        'attendance_percentage': attendance_percentage,
-    })
+    return Response({
+        "student": StudentSerializer(student).data,
+        "attendance_percentage": attendance_percentage,
+    }, status=status.HTTP_200_OK)
