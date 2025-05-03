@@ -104,8 +104,9 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'students',  # Your app
-    'rest_framework',  # Add this
+    'students',
+    'faculty',  
+    'rest_framework', 
 ]
 
 # Optional: Add DRF settings (e.g., for authentication)
