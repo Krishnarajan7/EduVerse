@@ -56,7 +56,7 @@ def accounts_profile_redirect(request):
         return Response({"redirect": "/api/faculty/profile/"}, status=status.HTTP_302_FOUND)
     return Response({"redirect": "/role-selection"}, status=status.HTTP_302_FOUND)
 
-# -------------------- LOGIN VIEWS --------------------
+# -------------------- LOGIN VIEWS ---------------------
 
 @api_view(['POST', 'GET'])
 def student_login(request):
