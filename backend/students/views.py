@@ -13,7 +13,7 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework import status
 
 from .models import Student, Attendance, Fee, Subject, Circular, ExamTimetable, ClassTimetable
-from .forms import StudentProfileForm, ChangePasswordForm
+# from .forms import StudentProfileForm, ChangePasswordForm
 from .serializers import (
     StudentSerializer, FeeSerializer, CircularSerializer,
     ExamTimetableSerializer, ClassTimetableSerializer, AttendanceSerializer
