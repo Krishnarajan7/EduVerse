@@ -40,7 +40,7 @@ eduverse_project/
 │   │   ├── components/
 │   │   │   ├── Profile.jsx
 │   │   │   ├── EditProfile.jsx
-│   │   │   └── Navbar.jsx
+│   │   │   └── Navbar.jsx 
 │   │   ├── pages/
 │   │   │   ├── ProfilePage.jsx
 │   │   │   ├── EditProfilePage.jsx
@@ -166,3 +166,7 @@ Open a pull request.
 
 License
 This project is licensed under the MIT License. See the LICENSE file for details.
+
+
+
+--------ThankYou :)-------
