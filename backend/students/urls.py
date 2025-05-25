@@ -1,20 +1,20 @@
-from django.urls import path
+from django.urls import path, include
+from rest_framework.routers import DefaultRouter
 from . import views
+
+router = DefaultRouter()
+router.register(r'students', views.StudentViewSet, basename='student')
 
 app_name = 'students'
 urlpatterns = [
-    path('role-selection/', views.role_selection, name='role_selection'),
-    path('', views.home, name='home'),
-    path('logout/', views.custom_logout, name='logout'),
-    path('accounts/profile/', views.accounts_profile_redirect, name='accounts_profile'),
-    path('login/', views.student_login, name='login'),
-    path('faculty/login/', views.faculty_login, name='faculty_login'),
+    path('', include(router.urls)),
+    path('user-role/', views.get_user_role, name='get_user_role'),
     path('profile/', views.student_profile, name='student_profile'),
+    path('upload-profile-picture/', views.upload_profile_picture, name='upload_profile_picture'),
     path('change-password/', views.change_password, name='change_password'),
     path('dashboard/', views.student_dashboard, name='student_dashboard'),
     path('forgot-password/', views.forgot_password, name='forgot_password'),
     path('reset-password/<str:token>/', views.reset_password, name='reset_password'),
-    path('edit-profile/', views.edit_student_profile, name='edit_student_profile'),
     path('notice-calendar/', views.notice_calendar, name='notice_calendar'),
     path('master/', views.master, name='master'),
     path('admission/', views.admission, name='admission'),
