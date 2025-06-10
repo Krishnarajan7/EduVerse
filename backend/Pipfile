@@ -6,6 +6,8 @@ name = "pypi"
 [packages]
 django = "==5.0"
 psycopg2-binary = "*"
+python-dotenv = "*"
+django-cors-headers = "*"
 
 [dev-packages]
 
